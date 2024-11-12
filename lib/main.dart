@@ -3,5 +3,5 @@ import 'package:speciesdectection/detection%20and%20processing/screens/Registrat
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 
 void main() {
-  runApp(const MaterialApp(home: Signup()));
+  runApp(const MaterialApp(home: LoginPage()));
 }

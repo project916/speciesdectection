@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -226,6 +227,32 @@ class _SignupState extends State<Signup> {
                       }
                     },
                     child: Text('Sign Up'),
+                  ),
+
+                  //Login Option
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Already have an account? "),
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to the Login page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                            color: const Color.fromARGB(204, 24, 5, 78),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
