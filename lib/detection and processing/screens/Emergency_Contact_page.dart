@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class EmergencyContactPage extends StatelessWidget {
   final List<Map<String, String>> emergencyContacts = [
@@ -24,6 +26,19 @@ class EmergencyContactPage extends StatelessWidget {
     },
   ];
 
+  /// Function to open the phone dialer
+  Future<void> _openDialer(String phoneNumber) async {
+    final Uri dialerUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunchUrl(dialerUri)) {
+      await launchUrl(dialerUri);
+    } else {
+      throw 'Could not launch $phoneNumber';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,13 +61,22 @@ class EmergencyContactPage extends StatelessWidget {
               subtitle: Text('Phone: ${emergencyContacts[index]['phone']}'),
               trailing: Icon(Icons.call, color: Colors.blue),
               onTap: () {
-                // Trigger phone call (requires permissions in Android/iOS)
-                print('Calling ${emergencyContacts[index]['phone']}');
+                _makingPhoneCall(emergencyContacts[index]['phone']!);
               },
             ),
           );
         },
       ),
     );
+  }
+
+  _makingPhoneCall(String PHONENO) async {
+    print('call');
+    // var url = Uri.parse("tel:+1-555-010-999");
+    // if (await canLaunchUrl(url)) {
+    await launchUrlString("tel:$PHONENO");
+    // } else {
+    //   throw 'Could not launch $url';
+    // }
   }
 }
