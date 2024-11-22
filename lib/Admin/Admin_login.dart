@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/Registration_screen.dart';
-import 'package:speciesdectection/detection and processing/screens/Emergency_Contact_page.dart'; // Import your homepage screen
+import 'package:speciesdectection/Admin/Admin_home.dart';
+import 'package:speciesdectection/Admin/Admin_home.dart'; // Assuming you have an Admin Dashboard
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<AdminLoginPage> createState() => _AdminLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AdminLoginPageState extends State<AdminLoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool showPassword = true;
@@ -100,10 +99,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Email TextField
+                  // Admin Email TextField
                   customTextField(
                     emailController,
-                    'Email',
+                    'Admin Email',
                     Icons.email,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
@@ -117,10 +116,10 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
 
-                  // Password TextField with visibility toggle
+                  // Admin Password TextField with visibility toggle
                   customTextField(
                     passwordController,
-                    'Password',
+                    'Admin Password',
                     Icons.lock,
                     obscureText: showPassword,
                     suffixIcon: IconButton(
@@ -170,8 +169,10 @@ class _LoginPageState extends State<LoginPage> {
                   OutlinedButton(
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
-                        print("Email: ${emailController.text}");
-                        print("Password: ${passwordController.text}");
+                        // Assume admin login is successful
+                        print("Admin Email: ${emailController.text}");
+                        print("Admin Password: ${passwordController.text}");
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Login Successful'),
@@ -179,12 +180,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
 
-                        // Navigate to HomePage on successful login
+                        // Navigate to Admin Dashboard on successful login
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                Homepage(), // Your HomePage widget
+                                AdminHome(), // Your Admin Dashboard widget
                           ),
                         );
                       } else {
@@ -196,35 +197,9 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       }
                     },
-                    child: Text('Login'),
+                    child: Text('Admin Login'),
                   ),
                   const SizedBox(height: 10),
-
-                  // Sign Up Option
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have an account? "),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to the Signup page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Signup(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Signup",
-                          style: TextStyle(
-                            color: const Color.fromARGB(204, 24, 5, 78),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
