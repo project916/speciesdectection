@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:speciesdectection/Admin/Adminprivileage.dart';
-import 'package:speciesdectection/Admin/ManageContentPage.dart';
 import 'package:speciesdectection/Admin/ManageUsersPage.dart';
+import 'package:speciesdectection/Admin/ViewFeedbackPage.dart'; // Assuming you will create this page
+import 'package:speciesdectection/Admin/ManageEmergencyContactPage.dart'; // Assuming you will create this page
 import 'package:speciesdectection/Admin/SendNotificationsPage.dart';
-import 'package:speciesdectection/Admin/SystemSettingsPage.dart';
-import 'package:speciesdectection/Admin/ViewAnalyticsPage.dart';
-import 'package:speciesdectection/Admin/ViewTransactionsPage.dart';
-import 'ManageUsersPage.dart';
-import 'ViewAnalyticsPage.dart';
-import 'SystemSettingsPage.dart';
-import 'ViewTransactionsPage.dart';
-import 'SendNotificationsPage.dart';
-import 'ManageContentPage.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -24,23 +16,36 @@ class _AdminHomeState extends State<AdminHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Admin Dashboard')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // 2 items in a row
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
+      appBar: AppBar(
+        title: Text('Admin Dashboard'),
+        backgroundColor: const Color.fromARGB(255, 53, 185, 168), // Changed to deep purple for contrast
+        elevation: 0, // Remove shadow
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.lightBlue.shade100, Colors.pink.shade50], // Soft, mild gradient from light blue to soft pink
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          itemCount: 6, // Number of privileges
-          itemBuilder: (context, index) {
-            return AdminPrivilegeCard(
-              title: _getPrivilegeTitle(index),
-              icon: _getPrivilegeIcon(index),
-              onTap: () => _onPrivilegeTapped(index, context),
-            );
-          },
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // 2 items per row
+              crossAxisSpacing: 16.0,
+              mainAxisSpacing: 16.0,
+            ),
+            itemCount: 4, // Now only 4 privileges
+            itemBuilder: (context, index) {
+              return AdminPrivilegeCard(
+                title: _getPrivilegeTitle(index),
+                icon: _getPrivilegeIcon(index),
+                onTap: () => _onPrivilegeTapped(index, context),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -51,15 +56,11 @@ class _AdminHomeState extends State<AdminHome> {
       case 0:
         return 'Manage Users';
       case 1:
-        return 'View Analytics';
+        return 'View Feedback'; // Replaced 'View Analytics' with 'View Feedback'
       case 2:
-        return 'System Settings';
-      case 3:
-        return 'View Transactions';
-      case 4:
         return 'Send Notifications';
-      case 5:
-        return 'Manage Content';
+      case 3:
+        return 'Manage Emergency Contact'; // Replaced 'System Settings' with 'Manage Emergency Contact'
       default:
         return 'Privilege $index';
     }
@@ -70,15 +71,11 @@ class _AdminHomeState extends State<AdminHome> {
       case 0:
         return Icon(Icons.group);
       case 1:
-        return Icon(Icons.analytics);
+        return Icon(Icons.feedback); // Icon for View Feedback
       case 2:
-        return Icon(Icons.settings);
-      case 3:
-        return Icon(Icons.payment);
-      case 4:
         return Icon(Icons.notifications);
-      case 5:
-        return Icon(Icons.content_paste);
+      case 3:
+        return Icon(Icons.phone); // Icon for Manage Emergency Contact
       default:
         return Icon(Icons.lock);
     }
@@ -96,35 +93,72 @@ class _AdminHomeState extends State<AdminHome> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ViewAnalyticsPage()),
+          MaterialPageRoute(builder: (context) => ViewFeedbackPage()), // Navigate to View Feedback page
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SystemSettingsPage()),
+          MaterialPageRoute(builder: (context) => SendNotificationsPage()),
         );
         break;
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ViewTransactionsPage()),
-        );
-        break;
-      case 4:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SendNotificationsPage()),
-        );
-        break;
-      case 5:
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ManageContentPage()),
+          MaterialPageRoute(builder: (context) => ManageEmergencyContactPage()), // Navigate to Manage Emergency Contact page
         );
         break;
       default:
         print('Invalid privilege');
     }
+  }
+}
+
+class AdminPrivilegeCard extends StatelessWidget {
+  final String title;
+  final Icon icon;
+  final VoidCallback onTap;
+
+  AdminPrivilegeCard({required this.title, required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            colors: [Colors.lightBlue.shade100, Colors.pink.shade50], // Soft, mild gradient
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1), // Mild shadow for a soft effect
+              spreadRadius: 1,
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(height: 10),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.black, // Black text for good contrast
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
