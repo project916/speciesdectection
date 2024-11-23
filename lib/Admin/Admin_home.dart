@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:speciesdectection/Admin/Adminprivileage.dart';
 import 'package:speciesdectection/Admin/ManageContentPage.dart';
 import 'package:speciesdectection/Admin/ManageUsersPage.dart';
-import 'package:speciesdectection/Admin/SendNotificationsPage';
-import 'package:speciesdectection/Admin/SystemSettingsPage';
-import 'package:speciesdectection/Admin/ViewAnalyticsPage';
-import 'package:speciesdectection/Admin/ViewTransactionsPage';
-import 'manage_users_page.dart';
-import 'view_analytics_page.dart';
-import 'system_settings_page.dart';
-import 'view_transactions_page.dart';
-import 'send_notifications_page.dart';
-import 'manage_content_page.dart';
+import 'package:speciesdectection/Admin/SendNotificationsPage.dart';
+import 'package:speciesdectection/Admin/SystemSettingsPage.dart';
+import 'package:speciesdectection/Admin/ViewAnalyticsPage.dart';
+import 'package:speciesdectection/Admin/ViewTransactionsPage.dart';
+import 'ManageUsersPage.dart';
+import 'ViewAnalyticsPage.dart';
+import 'SystemSettingsPage.dart';
+import 'ViewTransactionsPage.dart';
+import 'SendNotificationsPage.dart';
+import 'ManageContentPage.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
