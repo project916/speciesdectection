@@ -16,27 +16,29 @@ class Homepage extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(),
       child: Container(
-        width: 150,
-        height: 150,
-        margin: EdgeInsets.all(8),
+        margin: EdgeInsets.all(12),
         padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 98, 103, 118).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-              color: const Color.fromARGB(255, 38, 79, 150), width: 1),
+          color: Colors.white.withOpacity(0.7), // Transparent white for the box
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 4),
+              blurRadius: 10,
+            ),
+          ],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon,
-                color: const Color.fromARGB(255, 68, 127, 255), size: 40),
-            SizedBox(height: 10),
+            Icon(icon, color: const Color.fromARGB(255, 123, 206, 218), size: 45), // Soft pink accent color
+            SizedBox(height: 12),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18, // Increased font size for better visibility
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -50,138 +52,150 @@ class Homepage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Welcome To Wild Alert',
-          ),
+      appBar: AppBar(
+        title: Text(
+          'Welcome To Wild Alert',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
-        drawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage(
-                          'asset/images/profile_image.png'), // Replace with actual image
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Profile',
-                      style: TextStyle(color: Colors.white, fontSize: 15),
-                    ),
-                    Text(
-                      'A@example.com',
-                      style: TextStyle(color: Colors.white, fontSize: 10),
-                    ),
-                  ],
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.person),
-                title: Text('Profile'),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ProfilePage()));
-                },
-              ),
-             /* ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Settings'),
-                onTap: () {
-                  // Add action for Settings
-                },
-              ),*/
-              ListTile(
-                leading: Icon(Icons.logout),
-                title: Text('Logout'),
-                onTap: () {// Implement logout functionality here (clear session, if needed)
-
-                  // Clear session data or any authentication data if necessary
-                  // Example: SharedPreferences or Auth provider clear
-
-                  // Show a SnackBar indicating logout
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Logged out')),
-                  );
-
-                  // Navigate to the LoginPage and remove ProfilePage from the stack
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()), // Navigate to LoginPage
-                    (route) => false, // Remove all previous routes from the stack (no back navigation)
-                  );
-
-                  // Add action for Logout
-                },
-              ),
-            ],
-          ),
-        ),
-        body: Column(
+        backgroundColor: const Color.fromARGB(255, 201, 167, 105), // Use a soft pink color for the AppBar
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.pink.shade100, Colors.orange.shade200],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: AssetImage('asset/images/profile_image.png'), // Replace with actual image
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Profile',
+                    style: TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                  Text(
+                    'A@example.com',
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                // Implement logout functionality here (clear session, if needed)
+                // Show a SnackBar indicating logout
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Logged out')),
+                );
+
+                // Navigate to the LoginPage and remove ProfilePage from the stack
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  (route) => false,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Container(
+        // Pastel gradient background for the homepage
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [const Color.fromARGB(255, 44, 131, 33), const Color.fromARGB(255, 168, 147, 79)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          children: [
+            // Logo Image
             Image.asset('asset/images/logo.jpeg',
                 width: MediaQuery.of(context).size.width,
                 height: 250,
                 fit: BoxFit.fitWidth),
             Expanded(
-              child: Wrap(
-                children: [
-                  // Feature boxes
-                  buildFeatureBox(
-                    context,
-                    'Upload Video',
-                    Icons.upload_file,
-                    () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => UploadVideoPage()));
-                    },
-                  ),
-                  buildFeatureBox(
-                    context,
-                    'Safety Tips',
-                    Icons.info_outline,
-                    () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SafetyTipsPage()));
-                    },
-                  ),
-                  buildFeatureBox(
-                    context,
-                    'Emergency Contact',
-                    Icons.phone_in_talk,
-                    () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => EmergencyContactPage()));
-                    },
-                  ),
-                  buildFeatureBox(
-                    context,
-                    'Feedback',
-                    Icons.feedback,
-                    () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => FeedbackPage()));
-                    },
-                  ),
-                ],
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 columns for 2x2 layout
+                  crossAxisSpacing: 16, // Horizontal spacing between items
+                  mainAxisSpacing: 16,  // Vertical spacing between items
+                  childAspectRatio: 1,  // Aspect ratio of each item (box)
+                ),
+                itemCount: 4,  // Total 4 feature boxes
+                itemBuilder: (context, index) {
+                  // Creating 4 feature boxes
+                  switch (index) {
+                    case 0:
+                      return buildFeatureBox(
+                        context,
+                        'Upload Video',
+                        Icons.upload_file,
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UploadVideoPage())),
+                      );
+                    case 1:
+                      return buildFeatureBox(
+                        context,
+                        'Safety Tips',
+                        Icons.info_outline,
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SafetyTipsPage())),
+                      );
+                    case 2:
+                      return buildFeatureBox(
+                        context,
+                        'Emergency Contact',
+                        Icons.phone_in_talk,
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EmergencyContactPage())),
+                      );
+                    case 3:
+                      return buildFeatureBox(
+                        context,
+                        'Feedback',
+                        Icons.feedback,
+                        () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FeedbackPage())),
+                      );
+                    default:
+                      return SizedBox(); // Empty box if index is out of bounds
+                  }
+                },
               ),
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }
