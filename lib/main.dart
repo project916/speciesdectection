@@ -5,5 +5,5 @@ import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 
 void main() {
-  runApp(const MaterialApp(debugShowCheckedModeBanner:false,home:  AdminHome()));
+  runApp(const MaterialApp(debugShowCheckedModeBanner:false,home: Homepage()));
 }

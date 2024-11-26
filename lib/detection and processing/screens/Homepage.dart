@@ -3,6 +3,7 @@ import 'package:speciesdectection/detection%20and%20processing/screens/Emergency
 import 'package:speciesdectection/detection%20and%20processing/screens/Feedbac_page.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Safety_Tips_Page.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Upload_Video_Page.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/profile.dart';
 
 /// -------------------------- Homepage Widget --------------------------
@@ -68,7 +69,7 @@ class Homepage extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundImage: AssetImage(
-                          'assets/profile_image.png'), // Replace with actual image
+                          'asset/images/profile_image.png'), // Replace with actual image
                     ),
                     SizedBox(height: 10),
                     Text(
@@ -90,17 +91,33 @@ class Homepage extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => ProfilePage()));
                 },
               ),
-              ListTile(
+             /* ListTile(
                 leading: Icon(Icons.settings),
                 title: Text('Settings'),
                 onTap: () {
                   // Add action for Settings
                 },
-              ),
+              ),*/
               ListTile(
                 leading: Icon(Icons.logout),
                 title: Text('Logout'),
-                onTap: () {
+                onTap: () {// Implement logout functionality here (clear session, if needed)
+
+                  // Clear session data or any authentication data if necessary
+                  // Example: SharedPreferences or Auth provider clear
+
+                  // Show a SnackBar indicating logout
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Logged out')),
+                  );
+
+                  // Navigate to the LoginPage and remove ProfilePage from the stack
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()), // Navigate to LoginPage
+                    (route) => false, // Remove all previous routes from the stack (no back navigation)
+                  );
+
                   // Add action for Logout
                 },
               ),

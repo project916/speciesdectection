@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';  // Import LoginPage
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -11,8 +11,7 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
   bool showPass = true;
@@ -202,21 +201,20 @@ class _SignupState extends State<Signup> {
                   OutlinedButton(
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
-                        print("Name: ${nameController.text}");
-                        print("Email: ${emailController.text}");
-                        print("Mobile: ${numberController.text}");
-                        print("Password: ${passwordController.text}");
+                        // Simulate successful Sign Up
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Sign Up Successful'),
                             duration: Duration(seconds: 2),
                           ),
                         );
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return Signup();
-                          },
-                        ));
+
+                        // Navigate to the LoginPage after successful sign-up
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                          (route) => false,  // Remove all previous pages from the stack
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -229,7 +227,7 @@ class _SignupState extends State<Signup> {
                     child: Text('Sign Up'),
                   ),
 
-                  //Login Option
+                  // Login Option
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

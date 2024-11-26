@@ -1,71 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:speciesdectection/detection%20and%20processing/EditProfilePage.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';  // Import LoginPage
 
 class ProfilePage extends StatelessWidget {
+  final String userName = "John Doe"; // Example user name
+  final String userEmail = "john.doe@example.com"; // Example email
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Profile Picture (CircleAvatar)
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: AssetImage(
-                  'assets/profile_image.png'), // Replace with actual image asset path
-            ),
-            SizedBox(height: 20),
-
-            // User Name
-            Text(
-              'Profile', // Replace with actual user data
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-
-            // User Email
-            Text(
-              'A@gmail.com', // Replace with actual user email
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            SizedBox(height: 20),
-
-            // Edit Profile Button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to a page for editing the profile (you can create one)
-                // For now, this button just prints a message when clicked.
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Edit Profile clicked!')),
-                );
-              },
-              child: Text('Edit Profile'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                textStyle: TextStyle(fontSize: 18),
+      body: Center(  // Center the content vertically
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,  // Center the content vertically
+            crossAxisAlignment: CrossAxisAlignment.center,  // Center content horizontally
+            children: [
+              // Profile Picture (CircleAvatar)
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: AssetImage(
+                    'asset/images/profile_image.png'), // Replace with actual image asset path
               ),
-            ),
-            SizedBox(height: 20),
+              SizedBox(height: 20),
 
-            // Logout Button (optional)
-            ElevatedButton(
-              onPressed: () {
-                // Implement logout functionality here
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Logged out')),
-                );
-              },
-              child: Text('Logout'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                textStyle: TextStyle(fontSize: 18),
+              // User Name
+              Text(
+                userName, // Replace with actual user data
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+
+              // User Email
+              Text(
+                userEmail, // Replace with actual user email
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+              SizedBox(height: 20),
+
+              // Edit Profile Button
+              ElevatedButton(
+                onPressed: () {
+                  // Navigate to the EditProfilePage
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EditProfilePage()),
+                  );
+                },
+                child: Text('Edit Profile'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+              ),
+              SizedBox(height: 20),
+
+              // Logout Button
+              ElevatedButton(
+                onPressed: () {
+                  // Implement logout functionality here (clear session, if needed)
+
+                  // Clear session data or any authentication data if necessary
+                  // Example: SharedPreferences or Auth provider clear
+
+                  // Show a SnackBar indicating logout
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Logged out')),
+                  );
+
+                  // Navigate to the LoginPage and remove ProfilePage from the stack
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginPage()), // Navigate to LoginPage
+                    (route) => false, // Remove all previous routes from the stack (no back navigation)
+                  );
+                },
+                child: Text('Logout'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  textStyle: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
