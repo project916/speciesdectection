@@ -123,7 +123,7 @@ class Homepage extends StatelessWidget {
         // Pastel gradient background for the homepage
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [const Color.fromARGB(255, 44, 131, 33), const Color.fromARGB(255, 168, 147, 79)],
+            colors: [const Color.fromARGB(255, 105, 180, 185), const Color.fromARGB(255, 106, 160, 161)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
