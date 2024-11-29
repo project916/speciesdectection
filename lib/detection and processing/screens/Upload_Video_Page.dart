@@ -44,28 +44,47 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Video Upload')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => _pickVideo(context), // Trigger the video picker
-              child: Text('Select Video'),
-            ),
-            SizedBox(height: 20),
-            // Display the selected video information
-            if (_selectedVideoPath != null)
-              Text(
-                'Video Selected: $_selectedVideoPath',
-                style: TextStyle(fontSize: 16),
-              )
-            else
-              Text(
-                'No video selected yet.',
-                style: TextStyle(fontSize: 16),
+      appBar: AppBar(
+        title: Text('Video Upload'),
+        backgroundColor: const Color.fromARGB(
+            255, 68, 236, 255), // Set AppBar background color
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.blueAccent.withOpacity(0.6),
+              Colors.lightBlue.withOpacity(0.4),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () =>
+                    _pickVideo(context), // Trigger the video picker
+                child: Text('Select Video'),
               ),
-          ],
+              SizedBox(height: 20),
+              // Display the selected video information
+              if (_selectedVideoPath != null)
+                Text(
+                  'Video Selected: $_selectedVideoPath',
+                  style: TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                )
+              else
+                Text(
+                  'No video selected yet.',
+                  style: TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+            ],
+          ),
         ),
       ),
     );

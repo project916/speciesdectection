@@ -18,13 +18,17 @@ class _AdminHomeState extends State<AdminHome> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard'),
-        backgroundColor: const Color.fromARGB(255, 53, 185, 168), // Changed to deep purple for contrast
+        backgroundColor: const Color.fromARGB(
+            255, 53, 185, 168), // Changed to deep purple for contrast
         elevation: 0, // Remove shadow
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade100, Colors.pink.shade50], // Soft, mild gradient from light blue to soft pink
+            colors: [
+              Colors.lightBlue.shade100,
+              Colors.pink.shade50
+            ], // Soft, mild gradient from light blue to soft pink
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -93,7 +97,9 @@ class _AdminHomeState extends State<AdminHome> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ViewFeedbackPage()), // Navigate to View Feedback page
+          MaterialPageRoute(
+              builder: (context) =>
+                  ViewFeedbackPage()), // Navigate to View Feedback page
         );
         break;
       case 2:
@@ -105,7 +111,9 @@ class _AdminHomeState extends State<AdminHome> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ManageEmergencyContactPage()), // Navigate to Manage Emergency Contact page
+          MaterialPageRoute(
+              builder: (context) =>
+                  ManageEmergencyContactPage()), // Navigate to Manage Emergency Contact page
         );
         break;
       default:
@@ -119,7 +127,8 @@ class AdminPrivilegeCard extends StatelessWidget {
   final Icon icon;
   final VoidCallback onTap;
 
-  AdminPrivilegeCard({required this.title, required this.icon, required this.onTap});
+  AdminPrivilegeCard(
+      {required this.title, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -129,13 +138,17 @@ class AdminPrivilegeCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade100, Colors.pink.shade50], // Soft, mild gradient
+            colors: [
+              Colors.lightBlue.shade100,
+              Colors.pink.shade50
+            ], // Soft, mild gradient
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1), // Mild shadow for a soft effect
+              color: Colors.black
+                  .withOpacity(0.1), // Mild shadow for a soft effect
               spreadRadius: 1,
               blurRadius: 4,
             ),

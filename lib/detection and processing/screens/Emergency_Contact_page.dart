@@ -46,37 +46,39 @@ class EmergencyContactPage extends StatelessWidget {
         title: Text('Emergency Contacts'),
         backgroundColor: Colors.redAccent,
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemCount: emergencyContacts.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.symmetric(vertical: 8.0),
-            child: ListTile(
-              leading: Icon(Icons.phone, color: Colors.green),
-              title: Text(
-                emergencyContacts[index]['name']!,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.redAccent.withOpacity(0.1),
+              Colors.white.withOpacity(0.9),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: ListView.builder(
+          padding: EdgeInsets.all(16.0),
+          itemCount: emergencyContacts.length,
+          itemBuilder: (context, index) {
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8.0),
+              child: ListTile(
+                leading: Icon(Icons.phone, color: Colors.green),
+                title: Text(
+                  emergencyContacts[index]['name']!,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text('Phone: ${emergencyContacts[index]['phone']}'),
+                trailing: Icon(Icons.call, color: Colors.blue),
+                onTap: () {
+                  _openDialer(emergencyContacts[index]['phone']!);
+                },
               ),
-              subtitle: Text('Phone: ${emergencyContacts[index]['phone']}'),
-              trailing: Icon(Icons.call, color: Colors.blue),
-              onTap: () {
-                _makingPhoneCall(emergencyContacts[index]['phone']!);
-              },
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
-  }
-
-  _makingPhoneCall(String PHONENO) async {
-    print('call');
-    // var url = Uri.parse("tel:+1-555-010-999");
-    // if (await canLaunchUrl(url)) {
-    await launchUrlString("tel:$PHONENO");
-    // } else {
-    //   throw 'Could not launch $url';
-    // }
   }
 }

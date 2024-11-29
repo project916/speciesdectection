@@ -61,33 +61,37 @@ class SafetyTipsPage extends StatelessWidget {
         title: Text('Safety Tips'),
         backgroundColor: Colors.green,
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemCount: safetyTips.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: ListTile(
-              leading: Icon(
-                Icons.warning,
-                color: Colors.orangeAccent,
-                size: 30,
+      body: Container(
+        color:
+            Colors.lightGreenAccent.withOpacity(0.2), // Light green background
+        child: ListView.builder(
+          padding: EdgeInsets.all(16.0),
+          itemCount: safetyTips.length,
+          itemBuilder: (context, index) {
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8.0),
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              title: Text(
-                safetyTips[index]['title']!,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: ListTile(
+                leading: Icon(
+                  Icons.warning,
+                  color: Colors.orangeAccent,
+                  size: 30,
+                ),
+                title: Text(
+                  safetyTips[index]['title']!,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  safetyTips[index]['description']!,
+                  style: TextStyle(fontSize: 14),
+                ),
               ),
-              subtitle: Text(
-                safetyTips[index]['description']!,
-                style: TextStyle(fontSize: 14),
-              ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
