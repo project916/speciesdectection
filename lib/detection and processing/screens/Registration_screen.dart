@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:speciesdectection/detection%20and%20processing/Service/UserAuthService.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';  // Import LoginPage
 
 class Signup extends StatefulWidget {
@@ -202,12 +203,8 @@ class _SignupState extends State<Signup> {
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
                         // Simulate successful Sign Up
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Sign Up Successful'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                        
+                       UserAuthService().UserRegister(name: "hi", email: "a@gmail.com", mobile: "1547945789", password: "123456", context: context);
 
                         // Navigate to the LoginPage after successful sign-up
                         Navigator.pushAndRemoveUntil(

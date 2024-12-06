@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/Admin/Admin_home.dart';
-import 'package:speciesdectection/Admin/Admin_login.dart';
+import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
+import 'package:speciesdectection/Admin/Screen/Admin_login.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 import 'package:speciesdectection/firebase_options.dart';
@@ -11,5 +11,5 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: AdminHome()));
+  runApp(MaterialApp(debugShowCheckedModeBanner: false, home:Homepage()));
 }

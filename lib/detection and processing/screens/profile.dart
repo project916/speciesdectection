@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/detection%20and%20processing/EditProfilePage.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/EditProfilePage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';  // Import LoginPage
 
 class ProfilePage extends StatelessWidget {

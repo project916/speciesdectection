@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/Admin/Adminprivileage.dart';
-import 'package:speciesdectection/Admin/ManageUsersPage.dart';
-import 'package:speciesdectection/Admin/ViewFeedbackPage.dart'; // Assuming you will create this page
-import 'package:speciesdectection/Admin/ManageEmergencyContactPage.dart'; // Assuming you will create this page
-import 'package:speciesdectection/Admin/SendNotificationsPage.dart';
+import 'package:speciesdectection/Admin/Screen/Adminprivileage.dart';
+import 'package:speciesdectection/Admin/Screen/ManageUsersPage.dart';
+import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart'; // Assuming you will create this page
+import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart'; // Assuming you will create this page
+import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});

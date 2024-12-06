@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/Admin/Admin_home.dart';
-import 'package:speciesdectection/Admin/Admin_home.dart'; // Assuming you have an Admin Dashboard
+import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
+import 'package:speciesdectection/Admin/Screen/Admin_home.dart'; // Assuming you have an Admin Dashboard
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
