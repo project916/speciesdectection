@@ -14,7 +14,7 @@ class _SignupState extends State<Signup> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController numberController = TextEditingController();
+  final TextEditingController mobilenumberController = TextEditingController();
   bool showPass = true;
   bool showConfirmPass = true;
   final _formKey = GlobalKey<FormState>();
@@ -25,7 +25,7 @@ class _SignupState extends State<Signup> {
     passwordController.dispose();
     confirmPasswordController.dispose();
     emailController.dispose();
-    numberController.dispose();
+    mobilenumberController.dispose();
     super.dispose();
   }
 
@@ -128,7 +128,7 @@ class _SignupState extends State<Signup> {
 
                   // Mobile Number TextField
                   customTextField(
-                    numberController,
+                    mobilenumberController,
                     'Mobile',
                     Icons.phone,
                     keyboardType: TextInputType.phone,
@@ -204,7 +204,7 @@ class _SignupState extends State<Signup> {
                       if (_formKey.currentState?.validate() ?? false) {
                         // Simulate successful Sign Up
                         
-                       UserAuthService().UserRegister(name: "hi", email: "a@gmail.com", mobile: "1547945789", password: "123456", context: context);
+                       UserAuthService().UserRegister(name: nameController.text, email: emailController.text, mobile: mobilenumberController.text, password: passwordController.text, context: context);
 
                         // Navigate to the LoginPage after successful sign-up
                         Navigator.pushAndRemoveUntil(
