@@ -17,7 +17,38 @@ class _SignupState extends State<Signup> {
   final TextEditingController mobilenumberController = TextEditingController();
   bool showPass = true;
   bool showConfirmPass = true;
+  bool isLoading = false; // Flag for loading state
   final _formKey = GlobalKey<FormState>();
+
+  void Signuphandler()async{
+      {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              setState(() {
+                                isLoading = true; // Start loading
+                              });
+
+                              // Call registration service
+                              await UserAuthService().UserRegister(
+                                name: nameController.text,
+                                email: emailController.text,
+                                mobile: mobilenumberController.text,
+                                password: passwordController.text,
+                                context: context,
+                              );
+
+                              setState(() {
+                                isLoading = false; // Stop loading
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please fix errors in the form'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          };
+  }
 
   @override
   void dispose() {
@@ -198,31 +229,13 @@ class _SignupState extends State<Signup> {
 
                   const SizedBox(height: 20),
 
-                  // Sign Up Button
-                  OutlinedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        // Simulate successful Sign Up
-                        
-                       UserAuthService().UserRegister(name: nameController.text, email: emailController.text, mobile: mobilenumberController.text, password: passwordController.text, context: context);
-
-                        // Navigate to the LoginPage after successful sign-up
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                          (route) => false,  // Remove all previous pages from the stack
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Please fix errors in the form'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    },
-                    child: Text('Sign Up'),
-                  ),
+                  // Sign Up Button or Loading Indicator
+                  isLoading
+                      ? CircularProgressIndicator() // Show loading spinner
+                      : OutlinedButton(
+                          onPressed: Signuphandler,
+                          child: Text('Sign Up'),
+                        ),
 
                   // Login Option
                   Row(

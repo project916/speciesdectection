@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/Registration_screen.dart';
-import 'package:speciesdectection/detection and processing/screens/Emergency_Contact_page.dart'; // Import your homepage screen
+import 'package:speciesdectection/detection%20and%20processing/Service/UserAuthService.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';  // Example Home page
+import 'package:speciesdectection/detection%20and%20processing/screens/Registration_screen.dart';  // Signup page
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,10 +14,38 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool showPassword = true;
-
-  // Form key for validation
+  bool isLoading = false; // Flag for loading state
   final _formKey = GlobalKey<FormState>();
+  
 
+void Loginhandler()async{
+   {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              setState(() {
+                                isLoading = true; // Start loading
+                              });
+                              await UserAuthService().userLogin(
+                               
+                                email: emailController.text,
+                                password: passwordController.text,
+                                context: context);
+
+
+                              setState(() {
+                                isLoading = false; // Stop loading
+                              });
+
+                            
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please fix errors in the form'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          };
+}
   @override
   void dispose() {
     emailController.dispose();
@@ -72,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
           gradient: LinearGradient(
             colors: [
               Colors.blue.shade50,
-              const Color.fromARGB(255, 249, 219, 144)
+              const Color.fromARGB(255, 249, 219, 144),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -166,38 +194,13 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Login Button
-                  OutlinedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        print("Email: ${emailController.text}");
-                        print("Password: ${passwordController.text}");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Login Successful'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-
-                        // Navigate to HomePage on successful login
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                Homepage(), // Your HomePage widget
-                          ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Please fix errors in the form'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    },
-                    child: Text('Login'),
-                  ),
+                  // Login Button or Loading Indicator
+                  isLoading
+                      ? CircularProgressIndicator() // Show loading spinner
+                      : OutlinedButton(
+                          onPressed: Loginhandler ,
+                          child: Text('Login'),
+                        ),
                   const SizedBox(height: 10),
 
                   // Sign Up Option
@@ -208,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: () {
                           // Navigate to the Signup page
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => Signup(),
