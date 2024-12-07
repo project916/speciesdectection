@@ -118,7 +118,7 @@ class Homepage extends StatelessWidget {
             ),
           ],
         ),
-      ),
+      ),   
       body: Container(
         // Pastel gradient background for the homepage
         decoration: BoxDecoration(
