@@ -1,40 +1,21 @@
 {
   "project_info": {
-    "project_number": "244198641872",
-    "project_id": "speciesdetection",
-    "storage_bucket": "speciesdetection.firebasestorage.app"
+    "project_number": "611693981412",
+    "project_id": "speciesdetection-d064a",
+    "storage_bucket": "speciesdetection-d064a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:244198641872:android:28aa2c16fdefcb48ef4ed5",
+        "mobilesdk_app_id": "1:611693981412:android:4ab6fc7525eae97514c6f1",
         "android_client_info": {
-          "package_name": "com.example.speciesdectectiontion"
+          "package_name": "com.example.speciesdectec"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBS9lIDdQwv0fAx0gRPWWDubxsFzI7lHQY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:244198641872:android:7b9d69b064e0177eef4ed5",
-        "android_client_info": {
-          "package_name": "com.example.speciesdectection"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBS9lIDdQwv0fAx0gRPWWDubxsFzI7lHQY"
+          "current_key": "AIzaSyBhLstZb6AuCpZsO6mt8iliUWVQN5XD_Ac"
         }
       ],
       "services": {

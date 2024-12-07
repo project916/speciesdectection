@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD-GDZyhwEem22QZHfXrbTqcz9V12B3rUY',
-    appId: '1:244198641872:web:b78c53157484bac9ef4ed5',
-    messagingSenderId: '244198641872',
-    projectId: 'speciesdetection',
-    authDomain: 'speciesdetection.firebaseapp.com',
-    storageBucket: 'speciesdetection.firebasestorage.app',
-    measurementId: 'G-EKCT5T3NZ8',
+    apiKey: 'AIzaSyA6fxyMPYai-gePCrWMvvqjDBig939Rf-s',
+    appId: '1:611693981412:web:ba7ce43424f9cce014c6f1',
+    messagingSenderId: '611693981412',
+    projectId: 'speciesdetection-d064a',
+    authDomain: 'speciesdetection-d064a.firebaseapp.com',
+    storageBucket: 'speciesdetection-d064a.firebasestorage.app',
+    measurementId: 'G-42GGJSQSCX',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBS9lIDdQwv0fAx0gRPWWDubxsFzI7lHQY',
-    appId: '1:244198641872:android:28aa2c16fdefcb48ef4ed5',
-    messagingSenderId: '244198641872',
-    projectId: 'speciesdetection',
-    storageBucket: 'speciesdetection.firebasestorage.app',
+    apiKey: 'AIzaSyBhLstZb6AuCpZsO6mt8iliUWVQN5XD_Ac',
+    appId: '1:611693981412:android:4ab6fc7525eae97514c6f1',
+    messagingSenderId: '611693981412',
+    projectId: 'speciesdetection-d064a',
+    storageBucket: 'speciesdetection-d064a.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCReJONq4JxhtQkYnBYSzt9PKrOWnBAjtE',
-    appId: '1:244198641872:ios:c536613cc5299e30ef4ed5',
-    messagingSenderId: '244198641872',
-    projectId: 'speciesdetection',
-    storageBucket: 'speciesdetection.firebasestorage.app',
+    apiKey: 'AIzaSyBlm8dEX5j2sCxb5Ya4J3DBoFQYgzsW8G8',
+    appId: '1:611693981412:ios:ce3a9f07a2ef9b7714c6f1',
+    messagingSenderId: '611693981412',
+    projectId: 'speciesdetection-d064a',
+    storageBucket: 'speciesdetection-d064a.firebasestorage.app',
     iosBundleId: 'com.example.speciesdectection',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCReJONq4JxhtQkYnBYSzt9PKrOWnBAjtE',
-    appId: '1:244198641872:ios:c536613cc5299e30ef4ed5',
-    messagingSenderId: '244198641872',
-    projectId: 'speciesdetection',
-    storageBucket: 'speciesdetection.firebasestorage.app',
+    apiKey: 'AIzaSyBlm8dEX5j2sCxb5Ya4J3DBoFQYgzsW8G8',
+    appId: '1:611693981412:ios:ce3a9f07a2ef9b7714c6f1',
+    messagingSenderId: '611693981412',
+    projectId: 'speciesdetection-d064a',
+    storageBucket: 'speciesdetection-d064a.firebasestorage.app',
     iosBundleId: 'com.example.speciesdectection',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD-GDZyhwEem22QZHfXrbTqcz9V12B3rUY',
-    appId: '1:244198641872:web:c7e01e36e85ec672ef4ed5',
-    messagingSenderId: '244198641872',
-    projectId: 'speciesdetection',
-    authDomain: 'speciesdetection.firebaseapp.com',
-    storageBucket: 'speciesdetection.firebasestorage.app',
-    measurementId: 'G-7PHJGJT5W1',
+    apiKey: 'AIzaSyA6fxyMPYai-gePCrWMvvqjDBig939Rf-s',
+    appId: '1:611693981412:web:efff07e4cbe2ab3e14c6f1',
+    messagingSenderId: '611693981412',
+    projectId: 'speciesdetection-d064a',
+    authDomain: 'speciesdetection-d064a.firebaseapp.com',
+    storageBucket: 'speciesdetection-d064a.firebasestorage.app',
+    measurementId: 'G-D21MC6GD04',
   );
+
 }
