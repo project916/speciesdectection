@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class FeedbackPage extends StatefulWidget {
@@ -8,6 +10,62 @@ class FeedbackPage extends StatefulWidget {
 class _FeedbackPageState extends State<FeedbackPage> {
   final TextEditingController _feedbackController = TextEditingController();
   int _selectedStars = 0;
+
+  // Firestore instance
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Method to send feedback to Firestore
+  Future<void> _submitFeedback() async {
+    final feedback = _feedbackController.text;
+
+    if (feedback.isNotEmpty && _selectedStars > 0) {
+      try {
+        // Ensure user is logged in
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          // If the user is not authenticated, show an error and return
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please sign in to submit feedback.')),
+          );
+          return;
+        }
+
+        // Get the current user's email
+        String userEmail = user.email ?? 'Anonymous';
+
+        // Creating a new feedback document in Firestore
+        await _firestore.collection('Feedbacks').add({
+          'rating': _selectedStars,
+          'feedback': feedback,
+          'user_email': userEmail, // Store the user's email in Firestore
+          'timestamp':
+              FieldValue.serverTimestamp(), // Automatically sets the timestamp
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Feedback submitted successfully!')),
+        );
+
+        // Clear the feedback form after submission
+        _feedbackController.clear();
+        setState(() {
+          _selectedStars = 0;
+        });
+      } catch (e) {
+        // Show error message if submitting feedback fails
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit feedback: $e')),
+        );
+      }
+    } else {
+      // Show validation error message if feedback or rating is missing
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Please provide both a star rating and feedback')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,29 +123,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
               SizedBox(height: 20),
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    final feedback = _feedbackController.text;
-                    if (feedback.isNotEmpty && _selectedStars > 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              'Feedback submitted: $feedback\nRating: $_selectedStars stars'),
-                        ),
-                      );
-                      _feedbackController.clear();
-                      setState(() {
-                        _selectedStars = 0;
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Please provide both a star rating and feedback before submitting.',
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: _submitFeedback,
                   child: Text('Submit'),
                 ),
               ),

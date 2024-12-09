@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class SendNotificationsPage extends StatefulWidget {
@@ -7,15 +8,28 @@ class SendNotificationsPage extends StatefulWidget {
 
 class _SendNotificationsPageState extends State<SendNotificationsPage> {
   final TextEditingController _notificationController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void _sendNotification() {
+  void _sendNotification() async {
     final notificationContent = _notificationController.text;
     if (notificationContent.isEmpty) {
       _showErrorDialog('Please enter notification content');
       return;
     }
-    
-    _showSuccessDialog('Notification sent successfully!');
+
+    try {
+      // Save the notification to Firestore
+      await _firestore.collection('notifications').add({
+        'content': notificationContent,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Show success dialog
+      _showSuccessDialog('Notification sent successfully!');
+    } catch (e) {
+      // Handle error
+      _showErrorDialog('Error sending notification: $e');
+    }
   }
 
   void _showErrorDialog(String message) {
@@ -69,7 +83,8 @@ class _SendNotificationsPageState extends State<SendNotificationsPage> {
           children: [
             TextField(
               controller: _notificationController,
-              decoration: InputDecoration(labelText: 'Enter Notification Content'),
+              decoration:
+                  InputDecoration(labelText: 'Enter Notification Content'),
               maxLines: 5,
             ),
             SizedBox(height: 20),

@@ -1,30 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class EmergencyContactPage extends StatelessWidget {
-  final List<Map<String, String>> emergencyContacts = [
-    {
-      'name': 'Police',
-      'phone': '100',
-    },
-    {
-      'name': 'Ambulance',
-      'phone': '102',
-    },
-    {
-      'name': 'Fire Brigade',
-      'phone': '101',
-    },
-    {
-      'name': 'Wildlife Helpline',
-      'phone': '1800-123-4567',
-    },
-    {
-      'name': 'Forest Department',
-      'phone': '1800-987-6543',
-    },
-  ];
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Fetch emergency contacts from Firestore
+  Future<List<Map<String, String>>> _getEmergencyContacts() async {
+    try {
+      QuerySnapshot snapshot =
+          await _firestore.collection('EmergencyContacts').get();
+      return snapshot.docs
+          .map((doc) => {
+                'name': doc['name'] as String,
+                'phone': doc['mobile']
+                    as String, // Assuming 'mobile' is stored as the phone number
+              })
+          .toList();
+    } catch (e) {
+      print('Error fetching contacts: $e');
+      return [];
+    }
+  }
 
   /// Function to open the phone dialer
   Future<void> _openDialer(String phoneNumber) async {
@@ -57,25 +54,43 @@ class EmergencyContactPage extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: ListView.builder(
-          padding: EdgeInsets.all(16.0),
-          itemCount: emergencyContacts.length,
-          itemBuilder: (context, index) {
-            return Card(
-              margin: EdgeInsets.symmetric(vertical: 8.0),
-              child: ListTile(
-                leading: Icon(Icons.phone, color: Colors.green),
-                title: Text(
-                  emergencyContacts[index]['name']!,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text('Phone: ${emergencyContacts[index]['phone']}'),
-                trailing: Icon(Icons.call, color: Colors.blue),
-                onTap: () {
-                  _openDialer(emergencyContacts[index]['phone']!);
-                },
-              ),
-            );
+        child: FutureBuilder<List<Map<String, String>>>(
+          future: _getEmergencyContacts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return Center(child: Text('Error fetching contacts.'));
+            }
+
+            List<Map<String, String>> contacts = snapshot.data ?? [];
+
+            return contacts.isEmpty
+                ? Center(child: Text('No emergency contacts available.'))
+                : ListView.builder(
+                    padding: EdgeInsets.all(16.0),
+                    itemCount: contacts.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        margin: EdgeInsets.symmetric(vertical: 8.0),
+                        child: ListTile(
+                          leading: Icon(Icons.phone, color: Colors.green),
+                          title: Text(
+                            contacts[index]['name']!,
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text('Phone: ${contacts[index]['phone']}'),
+                          trailing: Icon(Icons.call, color: Colors.blue),
+                          onTap: () {
+                            _openDialer(contacts[index]['phone']!);
+                          },
+                        ),
+                      );
+                    },
+                  );
           },
         ),
       ),

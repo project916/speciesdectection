@@ -1,23 +1,65 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ManageEmergencyContactPage extends StatefulWidget {
   @override
-  _ManageEmergencyContactPageState createState() => _ManageEmergencyContactPageState();
+  _ManageEmergencyContactPageState createState() =>
+      _ManageEmergencyContactPageState();
 }
 
-class _ManageEmergencyContactPageState extends State<ManageEmergencyContactPage> {
-  final List<String> _contacts = ['John Doe - 1234567890', 'Jane Smith - 9876543210']; // Sample emergency contacts
+class _ManageEmergencyContactPageState
+    extends State<ManageEmergencyContactPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
 
-  void _addContact(String contact) {
-    setState(() {
-      _contacts.add(contact);
-    });
+  // Fetch contacts from Firestore
+  Future<List<Map<String, String>>> _getContacts() async {
+    try {
+      QuerySnapshot snapshot =
+          await _firestore.collection('EmergencyContacts').get();
+      return snapshot.docs
+          .map((doc) => {
+                'name': doc['name'] as String,
+                'mobile': doc['mobile'] as String,
+              })
+          .toList();
+    } catch (e) {
+      print('Error fetching contacts: $e');
+      return [];
+    }
   }
 
-  void _removeContact(int index) {
-    setState(() {
-      _contacts.removeAt(index);
-    });
+  // Add a new contact to Firestore
+  void _addContact(String name, String mobile) async {
+    try {
+      await _firestore.collection('EmergencyContacts').add({
+        'name': name,
+        'mobile': mobile,
+      });
+      setState(() {}); // Trigger a UI update
+    } catch (e) {
+      print('Error adding contact: $e');
+    }
+  }
+
+  // Remove a contact from Firestore
+  void _removeContact(String name, String mobile) async {
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('EmergencyContacts')
+          .where('name', isEqualTo: name)
+          .where('mobile', isEqualTo: mobile)
+          .get();
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      setState(() {}); // Trigger a UI update
+    } catch (e) {
+      print('Error removing contact: $e');
+    }
   }
 
   @override
@@ -30,31 +72,69 @@ class _ManageEmergencyContactPageState extends State<ManageEmergencyContactPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              onSubmitted: _addContact,
+              controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Add Emergency Contact',
-                suffixIcon: Icon(Icons.add),
+                labelText: 'Contact Name',
+              ),
+            ),
+            TextField(
+              controller: _mobileController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'Contact Mobile',
               ),
             ),
             SizedBox(height: 20),
-            _contacts.isEmpty
-                ? Center(child: Text('No emergency contacts available'))
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _contacts.length,
-                    itemBuilder: (context, index) {
-                      return Card(
-                        margin: EdgeInsets.symmetric(vertical: 8),
-                        child: ListTile(
-                          title: Text(_contacts[index]),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () => _removeContact(index),
-                          ),
-                        ),
+            ElevatedButton(
+              onPressed: () {
+                String name = _nameController.text.trim();
+                String mobile = _mobileController.text.trim();
+                if (name.isNotEmpty && mobile.isNotEmpty) {
+                  _addContact(name, mobile);
+                  _nameController.clear();
+                  _mobileController.clear();
+                }
+              },
+              child: Text('Add Contact'),
+            ),
+            SizedBox(height: 20),
+            FutureBuilder<List<Map<String, String>>>(
+              future: _getContacts(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error fetching contacts.'));
+                }
+
+                List<Map<String, String>> contacts = snapshot.data ?? [];
+
+                return contacts.isEmpty
+                    ? Center(child: Text('No emergency contacts available'))
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: contacts.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(contacts[index]['name'] ?? ''),
+                              subtitle: Text(contacts[index]['mobile'] ?? ''),
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () => _removeContact(
+                                  contacts[index]['name']!,
+                                  contacts[index]['mobile']!,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       );
-                    },
-                  ),
+              },
+            ),
           ],
         ),
       ),
