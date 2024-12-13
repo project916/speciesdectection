@@ -18,49 +18,52 @@ class UserAuthService {
   }) async {
     try {
       final user = await firebaseAuth.createUserWithEmailAndPassword(
-        email: email, 
-        password: password
+        email: email,
+        password: password,
       );
 
-   await   firestoreDatabase.collection("Users").doc(user.user?.uid).set({
+      await firestoreDatabase.collection("Users").doc(user.user?.uid).set({
         "name": name,
         "email": email,
         "mobile": mobile,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration successful")));
-        // Navigate to the LoginPage after successful sign-up
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginPage()),
-                          (route) => false,  // Remove all previous pages from the stack
-                        );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Registration successful")),
+      );
+
+      // Navigate to the LoginPage after successful sign-up
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+        (route) => false,
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration Failed")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Registration Failed: $e")),
+      );
     }
   }
 
   // Login User
-  Future<void> userLogin({
+  Future<bool> userLogin({
     required BuildContext context,
     required String email,
     required String password,
   }) async {
     try {
       // Attempt to sign in using Firebase Authentication
-      final userCredential = await firebaseAuth.signInWithEmailAndPassword(
+      await firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Show success message and navigate to the Homepage
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login Successful')),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Homepage()),
-      );
+
+      return true; // Indicate login success
     } on FirebaseAuthException catch (e) {
       // Handle authentication errors
       String errorMessage;
@@ -80,11 +83,13 @@ class UserAuthService {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage)),
       );
+      return false; // Indicate login failure
     } catch (e) {
       // Handle any other errors that are not related to FirebaseAuth
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login Failed: ${e.toString()}')),
+        SnackBar(content: Text('Login Failed: $e')),
       );
+      return false; // Indicate login failure
     }
   }
 }

@@ -18,7 +18,10 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
         // Gradient background for the entire page
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue, Colors.teal], // Gradient colors
+            colors: [
+              const Color.fromARGB(255, 181, 202, 218),
+              const Color.fromARGB(255, 208, 215, 214)
+            ], // Gradient colors
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

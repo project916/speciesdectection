@@ -4,6 +4,8 @@ import 'package:speciesdectection/Admin/Screen/ManageUsersPage.dart';
 import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart'; // Assuming you will create this page
 import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart'; // Assuming you will create this page
 import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart'; // Import login page
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -21,6 +23,23 @@ class _AdminHomeState extends State<AdminHome> {
         backgroundColor: const Color.fromARGB(
             255, 53, 185, 168), // Changed to deep purple for contrast
         elevation: 0, // Remove shadow
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              // Log out the admin
+              await FirebaseAuth.instance.signOut();
+
+              // Navigate to the Login screen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LoginPage(), // Login screen
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(

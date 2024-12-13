@@ -4,52 +4,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RemoveUserPage extends StatefulWidget {
   @override
-  _RemoveUserListState createState() => _RemoveUserListState();
+  _RemoveUserPageState createState() => _RemoveUserPageState();
 }
 
-class _RemoveUserListState extends State<RemoveUserPage> {
+class _RemoveUserPageState extends State<RemoveUserPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   List<Map<String, dynamic>> _users = [];
-  bool _isAdmin = false; // Flag to track if the user is an admin
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _checkAdminStatus(); // Verify if the logged-in user is an admin
     _fetchUsers();
-  }
-
-  /// Check if the current user is an admin
-  Future<void> _checkAdminStatus() async {
-    try {
-      User? currentUser = _auth.currentUser;
-      if (currentUser == null) {
-        _showErrorDialog('You are not logged in.');
-        return;
-      }
-
-      // Check if the logged-in user's email exists in the admin collection
-      DocumentSnapshot adminSnapshot =
-          await _firestore.collection('admin').doc(currentUser.email).get();
-
-      setState(() {
-        _isAdmin =
-            adminSnapshot.exists; // Set the admin flag based on existence
-      });
-
-      if (!_isAdmin) {
-        _showErrorDialog('You do not have admin privileges.');
-      }
-    } catch (e) {
-      print('Error checking admin status: $e');
-      _showErrorDialog('Error checking admin status: $e');
-    }
   }
 
   /// Fetch users from Firestore
   Future<void> _fetchUsers() async {
-    if (!_isAdmin) return; // Only fetch users if the current user is an admin
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       QuerySnapshot snapshot = await _firestore.collection('Users').get();
@@ -59,33 +34,37 @@ class _RemoveUserListState extends State<RemoveUserPage> {
           return {
             'name': data['name'] ?? '',
             'email': data['email'] ?? '',
-            'uid': doc.id, // Use the document ID as UID
+            'uid': doc.id, // Document ID as UID
           };
         }).toList();
       });
     } catch (e) {
-      print('Error fetching users: $e');
       _showErrorDialog('Error fetching users: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  /// Remove user from Firestore and optionally Firebase Authentication
+  /// Remove user from Firestore (without deleting from Firebase Authentication)
   Future<void> _removeUser(String uid) async {
-    if (!_isAdmin) {
-      _showErrorDialog('You do not have admin privileges to remove users.');
-      return;
-    }
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       // Remove user from Firestore
       await _firestore.collection('Users').doc(uid).delete();
 
-      // Refresh user list
-      _fetchUsers();
+      _fetchUsers(); // Refresh user list
       _showSuccessDialog('User removed successfully!');
     } catch (e) {
-      print('Error removing user: $e');
       _showErrorDialog('Error removing user: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -93,20 +72,18 @@ class _RemoveUserListState extends State<RemoveUserPage> {
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -114,47 +91,51 @@ class _RemoveUserListState extends State<RemoveUserPage> {
   void _showSuccessDialog(String message) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Success'),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        title: Text('Success'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isAdmin) {
-      return Center(
-          child: Text('You do not have permission to access this page.'));
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: Text('Remove Users')),
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
-    return _users.isEmpty
-        ? Center(child: Text('No users to remove'))
-        : ListView.builder(
-            itemCount: _users.length,
-            itemBuilder: (context, index) {
-              return Card(
-                margin: EdgeInsets.symmetric(vertical: 8),
-                child: ListTile(
-                  title: Text(_users[index]['name'] ?? ''),
-                  subtitle: Text(_users[index]['email'] ?? ''),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () => _removeUser(_users[index]['uid']),
+    return Scaffold(
+      appBar: AppBar(title: Text('Remove Users')),
+      body: _users.isEmpty
+          ? Center(child: Text('No users to remove.'))
+          : ListView.builder(
+              itemCount: _users.length,
+              itemBuilder: (context, index) {
+                final user = _users[index];
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    title: Text(user['name'] ?? 'No Name'),
+                    subtitle: Text(user['email'] ?? 'No Email'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _removeUser(user['uid']),
+                    ),
                   ),
-                ),
-              );
-            },
-          );
+                );
+              },
+            ),
+    );
   }
 }

@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
 import 'package:speciesdectection/detection%20and%20processing/Service/UserAuthService.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';  // Example Home page
-import 'package:speciesdectection/detection%20and%20processing/screens/Registration_screen.dart';  // Signup page
+import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart'; // User home page
+import 'package:speciesdectection/detection%20and%20processing/screens/Registration_screen.dart'; // Signup page
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,36 +18,72 @@ class _LoginPageState extends State<LoginPage> {
   bool showPassword = true;
   bool isLoading = false; // Flag for loading state
   final _formKey = GlobalKey<FormState>();
-  
 
-void Loginhandler()async{
-   {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              setState(() {
-                                isLoading = true; // Start loading
-                              });
-                              await UserAuthService().userLogin(
-                               
-                                email: emailController.text,
-                                password: passwordController.text,
-                                context: context);
+  void Loginhandler() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() {
+        isLoading = true; // Start loading
+      });
 
+      // Default admin credentials
+      const adminEmail = 'admin@gmail.com';
+      const adminPassword = 'admin123';
 
-                              setState(() {
-                                isLoading = false; // Stop loading
-                              });
+      // Check if admin credentials are entered
+      if (emailController.text.trim() == adminEmail &&
+          passwordController.text == adminPassword) {
+        // Navigate to Admin Homepage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminHome(), // Admin home page widget
+          ),
+        );
+      } else {
+        // Authenticate regular user
+        bool loginSuccess = await UserAuthService().userLogin(
+          email: emailController.text.trim(),
+          password: passwordController.text,
+          context: context,
+        );
 
-                            
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Please fix errors in the form'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            }
-                          };
-}
+        if (loginSuccess) {
+          // Check if the logged-in user is a regular user
+          String userEmail = FirebaseAuth.instance.currentUser?.email ?? '';
+
+          if (userEmail == adminEmail) {
+            // Admin user, navigate to Admin Homepage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminHome(),
+              ),
+            );
+          } else {
+            // Regular user, navigate to User Homepage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Homepage(), // User home page widget
+              ),
+            );
+          }
+        }
+      }
+
+      setState(() {
+        isLoading = false; // Stop loading
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please fix errors in the form'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     emailController.dispose();
@@ -198,7 +236,7 @@ void Loginhandler()async{
                   isLoading
                       ? CircularProgressIndicator() // Show loading spinner
                       : OutlinedButton(
-                          onPressed: Loginhandler ,
+                          onPressed: Loginhandler,
                           child: Text('Login'),
                         ),
                   const SizedBox(height: 10),
