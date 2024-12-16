@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
 import 'package:speciesdectection/detection%20and%20processing/Service/UserAuthService.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/Forgotpassword.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart'; // User home page
 import 'package:speciesdectection/detection%20and%20processing/screens/Registration_screen.dart'; // Signup page
 
@@ -217,11 +218,10 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextButton(
                       onPressed: () {
                         // Handle forgot password
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Forgot Password clicked'),
-                          ),
-                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ForgotPasswordPage()));
                       },
                       child: Text(
                         'Forgot Password?',
