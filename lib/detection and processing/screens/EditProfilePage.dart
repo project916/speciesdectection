@@ -19,7 +19,6 @@ class EditProfilePageState extends State<EditProfilePage> {
   // Store the original values to reset fields
   String originalName = '';
   String originalMobile = '';
-  String profileImageUrl = ''; // Store profile image URL (default or uploaded)
 
   @override
   void initState() {
@@ -48,8 +47,6 @@ class EditProfilePageState extends State<EditProfilePage> {
         setState(() {
           originalName = data['name'] ?? '';
           originalMobile = data['mobile'] ?? '';
-          profileImageUrl =
-              data['profileImageUrl'] ?? ''; // Set the profile image URL
 
           _nameController.text = originalName;
           _mobileController.text = originalMobile;
@@ -96,6 +93,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: Colors.blueAccent,
       ),
       body: Container(
+        constraints: BoxConstraints.expand(), // Ensure the container takes up all available space
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -107,22 +105,16 @@ class EditProfilePageState extends State<EditProfilePage> {
           ),
         ),
         child: SingleChildScrollView(
-          // Wrap the body with SingleChildScrollView
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Column(
-                mainAxisSize: MainAxisSize
-                    .min, // To make sure content doesn't take up all the space
+                mainAxisSize: MainAxisSize.min, // To make sure content doesn't take up all the space
                 children: [
-                  // Profile Picture (optional: you can add a picker here)
+                  // Default Profile Picture (No option for change)
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: profileImageUrl.isNotEmpty
-                        ? NetworkImage(
-                            profileImageUrl) // Use the user's image if available
-                        : AssetImage('assets/images/default_profile.png')
-                            as ImageProvider, // Default image if no profile picture
+                    backgroundImage: AssetImage('asset/images/profile_image.png'), // Default image
                   ),
                   SizedBox(height: 20),
 
@@ -151,8 +143,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                     onPressed: _updateUserProfile,
                     child: Text('Save Changes'),
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       textStyle: TextStyle(fontSize: 18),
                     ),
                   ),
@@ -163,11 +154,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                     onPressed: _resetFields,
                     child: Text('Reset'),
                     style: ElevatedButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       backgroundColor: Colors.grey,
-                      textStyle: TextStyle(
-                          fontSize: 18), // Grey color for reset button
+                      textStyle: TextStyle(fontSize: 18),
                     ),
                   ),
                 ],
