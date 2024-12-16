@@ -6,51 +6,12 @@ import 'package:speciesdectection/detection%20and%20processing/screens/Feedbac_p
 import 'package:speciesdectection/detection%20and%20processing/screens/Noticationpage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Safety_Tips_Page.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Upload_Video_Page.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/UserChat.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/profile.dart';
-import 'Noticationpage.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
-
-  Widget buildFeatureBox(
-      BuildContext context, String title, IconData icon, Function onTap) {
-    return GestureDetector(
-      onTap: () => onTap(),
-      child: Container(
-        margin: EdgeInsets.all(12),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(0, 4),
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon,
-                color: const Color.fromARGB(255, 123, 206, 218), size: 45),
-            SizedBox(height: 12),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +24,16 @@ class Homepage extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 201, 167, 105),
         actions: [
           IconButton(
+            icon: Icon(Icons.chat),
+            onPressed: () {
+              // Navigate to ChatPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatPage()), // Navigate to the ChatPage
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.notifications),
             onPressed: () {
               Navigator.push(
@@ -74,7 +45,7 @@ class Homepage extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
-        child: StreamBuilder<DocumentSnapshot>(
+        child: StreamBuilder<DocumentSnapshot>( 
           stream: FirebaseFirestore.instance
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -226,6 +197,45 @@ class Homepage extends StatelessWidget {
                       return SizedBox();
                   }
                 },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildFeatureBox(
+      BuildContext context, String title, IconData icon, Function onTap) {
+    return GestureDetector(
+      onTap: () => onTap(),
+      child: Container(
+        margin: EdgeInsets.all(12),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.7),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 4),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon,
+                color: const Color.fromARGB(255, 123, 206, 218), size: 45),
+            SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
           ],

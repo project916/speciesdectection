@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:speciesdectection/Admin/AdminChat.dart';
 import 'package:speciesdectection/Admin/Screen/Adminprivileage.dart';
 import 'package:speciesdectection/Admin/Screen/ManageUsersPage.dart';
-import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart'; // Assuming you will create this page
-import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart'; // Assuming you will create this page
+import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart'; 
+import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart'; 
 import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart'; // Import login page
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
+import 'package:speciesdectection/Admin/AdminChat.dart'; // Import Admin Chat Page
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -20,22 +22,27 @@ class _AdminHomeState extends State<AdminHome> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard'),
-        backgroundColor: const Color.fromARGB(
-            255, 53, 185, 168), // Changed to deep purple for contrast
-        elevation: 0, // Remove shadow
+        backgroundColor: const Color.fromARGB(255, 53, 185, 168),
+        elevation: 0,
         actions: [
+          // Logout Icon
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: () async {
-              // Log out the admin
               await FirebaseAuth.instance.signOut();
-
-              // Navigate to the Login screen
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(), // Login screen
-                ),
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+          // Chat Icon
+          IconButton(
+            icon: Icon(Icons.chat),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AdminChatPage()),
               );
             },
           ),
@@ -44,10 +51,7 @@ class _AdminHomeState extends State<AdminHome> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.lightBlue.shade100,
-              Colors.pink.shade50
-            ], // Soft, mild gradient from light blue to soft pink
+            colors: [Colors.lightBlue.shade100, Colors.pink.shade50],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -56,11 +60,11 @@ class _AdminHomeState extends State<AdminHome> {
           padding: const EdgeInsets.all(16.0),
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // 2 items per row
+              crossAxisCount: 2,
               crossAxisSpacing: 16.0,
               mainAxisSpacing: 16.0,
             ),
-            itemCount: 4, // Now only 4 privileges
+            itemCount: 4,
             itemBuilder: (context, index) {
               return AdminPrivilegeCard(
                 title: _getPrivilegeTitle(index),
@@ -79,11 +83,11 @@ class _AdminHomeState extends State<AdminHome> {
       case 0:
         return 'Manage Users';
       case 1:
-        return 'View Feedback'; // Replaced 'View Analytics' with 'View Feedback'
+        return 'View Feedback';
       case 2:
         return 'Send Notifications';
       case 3:
-        return 'Manage Emergency Contact'; // Replaced 'System Settings' with 'Manage Emergency Contact'
+        return 'Manage Emergency Contact';
       default:
         return 'Privilege $index';
     }
@@ -94,18 +98,17 @@ class _AdminHomeState extends State<AdminHome> {
       case 0:
         return Icon(Icons.group);
       case 1:
-        return Icon(Icons.feedback); // Icon for View Feedback
+        return Icon(Icons.feedback);
       case 2:
         return Icon(Icons.notifications);
       case 3:
-        return Icon(Icons.phone); // Icon for Manage Emergency Contact
+        return Icon(Icons.phone);
       default:
         return Icon(Icons.lock);
     }
   }
 
   void _onPrivilegeTapped(int index, BuildContext context) {
-    // Handle navigation or actions when a privilege is tapped
     switch (index) {
       case 0:
         Navigator.push(
@@ -116,9 +119,7 @@ class _AdminHomeState extends State<AdminHome> {
       case 1:
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ViewFeedbackPage()), // Navigate to View Feedback page
+          MaterialPageRoute(builder: (context) => ViewFeedbackPage()),
         );
         break;
       case 2:
@@ -130,9 +131,7 @@ class _AdminHomeState extends State<AdminHome> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ManageEmergencyContactPage()), // Navigate to Manage Emergency Contact page
+          MaterialPageRoute(builder: (context) => ManageEmergencyContactPage()),
         );
         break;
       default:
@@ -146,8 +145,7 @@ class AdminPrivilegeCard extends StatelessWidget {
   final Icon icon;
   final VoidCallback onTap;
 
-  AdminPrivilegeCard(
-      {required this.title, required this.icon, required this.onTap});
+  AdminPrivilegeCard({required this.title, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -157,17 +155,13 @@ class AdminPrivilegeCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
-            colors: [
-              Colors.lightBlue.shade100,
-              Colors.pink.shade50
-            ], // Soft, mild gradient
+            colors: [Colors.lightBlue.shade100, Colors.pink.shade50],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black
-                  .withOpacity(0.1), // Mild shadow for a soft effect
+              color: Colors.black.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 4,
             ),
@@ -183,7 +177,7 @@ class AdminPrivilegeCard extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.black, // Black text for good contrast
+                color: Colors.black,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
