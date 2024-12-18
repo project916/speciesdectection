@@ -1,5 +1,12 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class UploadVideoPage extends StatefulWidget {
   @override
@@ -20,6 +27,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       if (result != null && result.files.single.path != null) {
         // Access the file path
         String filePath = result.files.single.path!;
+        await _uploadVideo();
         setState(() {
           _selectedVideoPath =
               filePath; // Update the state with the selected file path
@@ -38,6 +46,119 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking video: $e')),
       );
+    }
+  }
+
+  String _result = "Upload a video to detect animals.";
+  Future<void> _uploadVideo() async {
+    // Pick a video file
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://2857-103-181-40-34.ngrok-free.app/upload'), // Replace with your Flask server's URL
+      );
+
+      request.files.add(await http.MultipartFile.fromPath('video', file.path));
+
+      var response = await request.send();
+
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+
+        var parsedData = jsonDecode(responseData);
+        _result = parsedData['result'];
+
+        print('$_result');
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+        print('object');
+        if (_result == 'notfound') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No Dangerous Animals')),
+          );
+        } else {
+          await sendNotificationToDevice('Alert ', _result);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_result)),
+          );
+        }
+
+        setState(() {});
+      } else {
+        setState(() {
+          _result = "Error uploading video.";
+        });
+      }
+    } else {
+      setState(() {
+        _result = "No video selected.";
+      });
+    }
+  }
+
+  Future<void> sendNotificationToDevice(String title, String body) async {
+    const String oneSignalRestApiKey =
+        'os_v2_app_revl45lph5dxhn2isdhvvlgpfw5qioeeimuua5eetpb66zztsz7vk3qn2l5zcusid3tapiqnk4cheqnjugqbin4e2z43e6jhtihfhli';
+    const String oneSignalAppId = '892abe75-6f3f-4773-b748-90cf5aaccf2d';
+
+    var status = await FirebaseFirestore.instance.collection('playerId').get();
+
+    var snapshot =
+        await FirebaseFirestore.instance.collection('playerId').get();
+
+    List<String> playerIds =
+        []; // Loop through each document and extract the 'onId' field
+    for (var doc in snapshot.docs) {
+      if (doc.data().containsKey('onId')) {
+        playerIds.add(doc['onId']);
+      }
+    }
+    var url = Uri.parse('https://api.onesignal.com/notifications?c=push');
+    var notificationData = {
+      "app_id": oneSignalAppId,
+      "headings": {"en": title},
+      "contents": {"en": body},
+      "target_channel": "push",
+      "include_player_ids": playerIds
+    };
+    print('hhhh');
+    var headers = {
+      "Content-Type": "application/json; charset=utf-8",
+      "Authorization": "Basic $oneSignalRestApiKey",
+    };
+    try {
+      var response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(notificationData),
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        print("Notification Sent Successfully!");
+        print(response.body);
+      } else {
+        print("Failed to send notification: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error sending notification: $e");
     }
   }
 
@@ -65,8 +186,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () =>
-                    _pickVideo(context), // Trigger the video picker
+                onPressed: () async {
+                  await _uploadVideo();
+                },
                 child: Text('Select Video'),
               ),
               SizedBox(height: 20),

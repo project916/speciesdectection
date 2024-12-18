@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 
@@ -53,12 +54,17 @@ class UserAuthService {
   }) async {
     try {
       // Attempt to sign in using Firebase Authentication
-      await firebaseAuth.signInWithEmailAndPassword(
+      final user = await firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Show success message
+      final playerId = OneSignal.User.pushSubscription.id;
+
+      await FirebaseFirestore.instance
+          .collection('playerId')
+          .doc(user.user!.uid)
+          .set({'onId': playerId}); // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login Successful')),
       );
