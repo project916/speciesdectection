@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -14,6 +15,28 @@ class UploadVideoPage extends StatefulWidget {
 }
 
 class _UploadVideoPageState extends State<UploadVideoPage> {
+  late String apiValue;
+
+  Future<void> fetchApiValue() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('Admin')
+          .doc('Bgvx3GwBjwYwMQlzFBwUDAKQMkW2')
+          .get();
+      setState(() {
+        apiValue = doc['api'] ?? '';
+      });
+    } catch (e) {
+      print('Error fetching API value: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchApiValue();
+  }
+
   String? _selectedVideoPath; // Store the selected video path
   bool _isUploading = false;
   // Function to pick a video file
@@ -77,8 +100,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse(
-            'https://acea-103-181-40-109.ngrok-free.app/upload'), // Replace with your Flask server's URL
+        Uri.parse('$apiValue/upload'), // Replace with your Flask server's URL
       );
 
       request.files.add(await http.MultipartFile.fromPath('video', file.path));

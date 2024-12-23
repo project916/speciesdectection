@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:speciesdectection/Admin/AdminChat.dart';
 import 'package:speciesdectection/Admin/Screen/Adminprivileage.dart';
 import 'package:speciesdectection/Admin/Screen/ManageUsersPage.dart';
-import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart'; 
-import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart'; 
+import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart';
+import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart';
 import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
-import 'package:speciesdectection/Admin/AdminChat.dart'; // Import Admin Chat Page
+import 'package:speciesdectection/Admin/AdminChat.dart';
+
+import 'api.dart'; // Import Admin Chat Page
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -74,6 +76,14 @@ class _AdminHomeState extends State<AdminHome> {
             },
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ApiScreen()),
+        ),
+        child: Icon(Icons.settings),
+        tooltip: 'Go to Admin Page',
       ),
     );
   }
@@ -145,7 +155,8 @@ class AdminPrivilegeCard extends StatelessWidget {
   final Icon icon;
   final VoidCallback onTap;
 
-  AdminPrivilegeCard({required this.title, required this.icon, required this.onTap});
+  AdminPrivilegeCard(
+      {required this.title, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

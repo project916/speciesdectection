@@ -92,26 +92,26 @@ class ProfilePage extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 20),
-
-                        // Logout Button
                         ElevatedButton(
-                          onPressed: () {
-                            // Implement logout functionality here (clear session, if needed)
+                          onPressed: () async {
+                            // Log out the user using Firebase Auth
+                            await FirebaseAuth.instance.signOut();
 
-                            // Clear session data or any authentication data if necessary
-                            // Example: SharedPreferences or Auth provider clear
+                            // Optionally, clear any other session data, like SharedPreferences (if used)
+                            // Example: SharedPreferences.remove('key'); if you're storing data locally
 
                             // Show a SnackBar indicating logout
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Logged out')),
                             );
 
-                            // Navigate to the LoginPage and remove ProfilePage from the stack
+                            // Navigate to the LoginPage and remove all routes from the stack (so the user can't go back to the home page)
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      LoginPage()), // Navigate to LoginPage
+                                builder: (context) =>
+                                    LoginPage(), // Navigate to LoginPage
+                              ),
                               (route) =>
                                   false, // Remove all previous routes from the stack (no back navigation)
                             );
