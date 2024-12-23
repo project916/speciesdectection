@@ -29,7 +29,9 @@ class Homepage extends StatelessWidget {
               // Navigate to ChatPage
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ChatPage()), // Navigate to the ChatPage
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ChatPage()), // Navigate to the ChatPage
               );
             },
           ),
@@ -45,7 +47,7 @@ class Homepage extends StatelessWidget {
         ],
       ),
       drawer: Drawer(
-        child: StreamBuilder<DocumentSnapshot>( 
+        child: StreamBuilder<DocumentSnapshot>(
           stream: FirebaseFirestore.instance
               .collection('Users')
               .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -107,7 +109,22 @@ class Homepage extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.logout),
                   title: Text('Logout'),
-                  onTap: () {
+                  onTap: () async {
+                    try {
+await FirebaseFirestore.instance.collection('playerId') .doc(FirebaseAuth.instance.currentUser?.uid).delete();
+ await FirebaseAuth.instance.signOut();
+   ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Logged out')),
+                    );
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      (route) => false,
+                    );
+ print("User logged out successfully.");
+} catch (e) {
+ print("Error logging out: $e");
+ }
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Logged out')),
                     );

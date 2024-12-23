@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
@@ -20,28 +21,14 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false; // Flag for loading state
   final _formKey = GlobalKey<FormState>();
 
-  void Loginhandler() async {
+  void loginHandler() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         isLoading = true; // Start loading
       });
 
-      // Default admin credentials
-      const adminEmail = 'admin@gmail.com';
-      const adminPassword = 'admin123';
-
-      // Check if admin credentials are entered
-      if (emailController.text.trim() == adminEmail &&
-          passwordController.text == adminPassword) {
-        // Navigate to Admin Homepage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AdminHome(), // Admin home page widget
-          ),
-        );
-      } else {
-        // Authenticate regular user
+      try {
+        // Authenticate user
         bool loginSuccess = await UserAuthService().userLogin(
           email: emailController.text.trim(),
           password: passwordController.text,
@@ -49,27 +36,43 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         if (loginSuccess) {
-          // Check if the logged-in user is a regular user
+          // Get authenticated user's email
           String userEmail = FirebaseAuth.instance.currentUser?.email ?? '';
 
-          if (userEmail == adminEmail) {
-            // Admin user, navigate to Admin Homepage
+          // Check Firestore collections
+          bool isAdmin = await checkAdminCollection(userEmail);
+          bool isUser = await checkUserCollection(userEmail);
+
+          if (isAdmin) {
+            // Navigate to Admin Homepage
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => AdminHome(),
               ),
             );
-          } else {
-            // Regular user, navigate to User Homepage
+          } else if (isUser) {
+            // Navigate to User Homepage
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => Homepage(), // User home page widget
+                builder: (context) => Homepage(),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("User not found in any collection."),
               ),
             );
           }
         }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error: ${e.toString()}"),
+          ),
+        );
       }
 
       setState(() {
@@ -77,11 +80,40 @@ class _LoginPageState extends State<LoginPage> {
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Please fix errors in the form'),
-          duration: Duration(seconds: 2),
         ),
       );
+    }
+  }
+
+  // Check if user exists in Admin collection
+  Future<bool> checkAdminCollection(String email) async {
+    try {
+      final adminSnapshot = await FirebaseFirestore.instance
+          .collection('Admin')
+          .where('email', isEqualTo: email)
+          .get();
+
+      return adminSnapshot.docs.isNotEmpty;
+    } catch (e) {
+      debugPrint("Error checking Admin collection: $e");
+      return false;
+    }
+  }
+
+  // Check if user exists in Users collection
+  Future<bool> checkUserCollection(String email) async {
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .where('email', isEqualTo: email)
+          .get();
+
+      return userSnapshot.docs.isNotEmpty;
+    } catch (e) {
+      debugPrint("Error checking Users collection: $e");
+      return false;
     }
   }
 
@@ -236,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                   isLoading
                       ? CircularProgressIndicator() // Show loading spinner
                       : OutlinedButton(
-                          onPressed: Loginhandler,
+                          onPressed: loginHandler,
                           child: Text('Login'),
                         ),
                   const SizedBox(height: 10),

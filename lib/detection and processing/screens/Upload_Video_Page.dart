@@ -15,7 +15,7 @@ class UploadVideoPage extends StatefulWidget {
 
 class _UploadVideoPageState extends State<UploadVideoPage> {
   String? _selectedVideoPath; // Store the selected video path
-
+  bool _isUploading = false;
   // Function to pick a video file
   Future<void> _pickVideo(BuildContext context) async {
     try {
@@ -50,6 +50,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   }
 
   String _result = "Upload a video to detect animals.";
+
   Future<void> _uploadVideo() async {
     // Pick a video file
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -58,54 +59,62 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
     if (result != null) {
       File file = File(result.files.single.path!);
+
+      setState(() {
+        _isUploading = true; // Start upload
+      });
+
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      );
+
       var request = http.MultipartRequest(
         'POST',
         Uri.parse(
-            'https://2857-103-181-40-34.ngrok-free.app/upload'), // Replace with your Flask server's URL
+            'https://acea-103-181-40-109.ngrok-free.app/upload'), // Replace with your Flask server's URL
       );
 
       request.files.add(await http.MultipartFile.fromPath('video', file.path));
 
-      var response = await request.send();
+      try {
+        var response = await request.send();
 
-      print(response.statusCode);
-      if (response.statusCode == 200) {
-        var responseData = await response.stream.bytesToString();
+        if (response.statusCode == 200) {
+          var responseData = await response.stream.bytesToString();
+          var parsedData = jsonDecode(responseData);
+          _result = parsedData['result'];
 
-        var parsedData = jsonDecode(responseData);
-        _result = parsedData['result'];
-
-        print('$_result');
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-        print('object');
-        if (_result == 'notfound') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No Dangerous Animals')),
-          );
+          if (_result == 'notfound') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('No Dangerous Animals')),
+            );
+          } else {
+            await sendNotificationToDevice('Alert ', _result);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(_result)),
+            );
+          }
         } else {
-          await sendNotificationToDevice('Alert ', _result);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(_result)),
-          );
+          setState(() {
+            _result = "Error uploading video.";
+          });
         }
-
-        setState(() {});
-      } else {
+      } catch (e) {
         setState(() {
-          _result = "Error uploading video.";
+          _result = "Error uploading video: $e";
         });
+      } finally {
+        setState(() {
+          _isUploading = false; // Upload complete
+        });
+        Navigator.of(context).pop(); // Close loading dialog
       }
     } else {
       setState(() {
