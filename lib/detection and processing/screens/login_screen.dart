@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
 import 'package:speciesdectection/detection%20and%20processing/Service/UserAuthService.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Forgotpassword.dart';
@@ -22,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   void loginHandler() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         isLoading = true; // Start loading
@@ -45,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
 
           if (isAdmin) {
             // Navigate to Admin Homepage
+            prefs.setString('user_role', 'admin');
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -52,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else if (isUser) {
-            // Navigate to User Homepage
+            prefs.setString('user_role', 'user'); // Navigate to User Homepage
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

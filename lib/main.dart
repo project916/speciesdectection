@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
@@ -16,72 +17,47 @@ Future<void> main() async {
   OneSignal.initialize("892abe75-6f3f-4773-b748-90cf5aaccf2d");
   await OneSignal.Notifications.requestPermission(true);
 
-  runApp(MyApp());
+  // Determine the initial screen dynamically
+  final homeScreen = await determineHomeScreen();
+
+  runApp(MyApp(home: homeScreen));
+}
+
+// Function to determine the home screen dynamically
+Future<Widget> determineHomeScreen() async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  if (user != null) {
+    try {
+      final adminSnapshot = await FirebaseFirestore.instance
+          .collection('Admin')
+          .where('email', isEqualTo: user.email)
+          .get();
+
+      if (adminSnapshot.docs.isNotEmpty) {
+        return AdminHome(); // Admin home screen
+      } else {
+        return Homepage(); // User home screen
+      }
+    } catch (e) {
+      print('Error checking admin role: $e');
+      return LoginPage(); // Fallback to login on error
+    }
+  } else {
+    return LoginPage(); // Login screen for unauthenticated users
+  }
 }
 
 class MyApp extends StatelessWidget {
+  final Widget home;
+
+  MyApp({super.key, required this.home});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: FutureBuilder<User?>(
-        future: FirebaseAuth.instance
-            .authStateChanges()
-            .first, // Listen to authentication state
-        builder: (context, snapshot) {
-          // Check if the user is logged in
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Show loading indicator while waiting
-          }
-
-          if (snapshot.hasData) {
-            // User is logged in, check their role
-            return FutureBuilder<bool>(
-              future: checkUserRole(snapshot
-                  .data!.email), // Check if the user is admin or regular user
-              builder: (context, roleSnapshot) {
-                if (roleSnapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator(); // Show loading indicator while checking role
-                }
-
-                if (roleSnapshot.data == true) {
-                  return AdminHome(); // If admin, navigate to Admin homepage
-                } else {
-                  return Homepage(); // If regular user, navigate to User homepage
-                }
-              },
-            );
-          } else {
-            // User is not logged in, show login screen
-            return LoginPage();
-          }
-        },
-      ),
+      home: home,
     );
-  }
-
-  // Function to check user role (admin or regular user)
-  Future<bool> checkUserRole(String? userEmail) async {
-    if (userEmail == null) return false;
-
-    // Check if the email exists in the admin collection
-    var adminDoc = await FirebaseFirestore.instance
-        .collection('admins')
-        .doc(userEmail)
-        .get();
-    if (adminDoc.exists) {
-      return true; // User is an admin
-    }
-
-    // Check if the email exists in the user collection
-    var userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userEmail)
-        .get();
-    if (userDoc.exists) {
-      return false; // User is a regular user
-    }
-
-    return false; // Default: user is neither admin nor regular user
   }
 }
