@@ -6,8 +6,10 @@ import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart';
 import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart';
 import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:speciesdectection/Admin/Screen/uploadhistory.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
 import 'package:speciesdectection/Admin/AdminChat.dart';
+
 
 import 'api.dart'; // Import Admin Chat Page
 
@@ -66,7 +68,7 @@ class _AdminHomeState extends State<AdminHome> {
               crossAxisSpacing: 16.0,
               mainAxisSpacing: 16.0,
             ),
-            itemCount: 4,
+            itemCount: 5, // Updated to 5 for the new option
             itemBuilder: (context, index) {
               return AdminPrivilegeCard(
                 title: _getPrivilegeTitle(index),
@@ -98,6 +100,8 @@ class _AdminHomeState extends State<AdminHome> {
         return 'Send Notifications';
       case 3:
         return 'Manage Emergency Contact';
+      case 4:
+        return 'Upload History'; // New option
       default:
         return 'Privilege $index';
     }
@@ -113,6 +117,8 @@ class _AdminHomeState extends State<AdminHome> {
         return Icon(Icons.notifications);
       case 3:
         return Icon(Icons.phone);
+      case 4:
+        return Icon(Icons.history); // Icon for Upload History
       default:
         return Icon(Icons.lock);
     }
@@ -142,6 +148,12 @@ class _AdminHomeState extends State<AdminHome> {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ManageEmergencyContactPage()),
+        );
+        break;
+      case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => UploadHistoryPage()), // Navigate to Upload History
         );
         break;
       default:

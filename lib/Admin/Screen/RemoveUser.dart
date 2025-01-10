@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RemoveUserPage extends StatefulWidget {
@@ -8,7 +7,6 @@ class RemoveUserPage extends StatefulWidget {
 }
 
 class _RemoveUserPageState extends State<RemoveUserPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   List<Map<String, dynamic>> _users = [];
@@ -20,7 +18,6 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
     _fetchUsers();
   }
 
-  /// Fetch users from Firestore
   Future<void> _fetchUsers() async {
     setState(() {
       _isLoading = true;
@@ -34,7 +31,10 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
           return {
             'name': data['name'] ?? '',
             'email': data['email'] ?? '',
-            'uid': doc.id, // Document ID as UID
+            'uid': doc.id,
+            'aadhaarUrl': data['aadhaarUrl'] ?? '',
+            'city': data['city'] ?? '',
+            'mobile': data['mobile'] ?? '',
           };
         }).toList();
       });
@@ -47,17 +47,14 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
     }
   }
 
-  /// Remove user from Firestore (without deleting from Firebase Authentication)
   Future<void> _removeUser(String uid) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Remove user from Firestore
       await _firestore.collection('Users').doc(uid).delete();
-
-      _fetchUsers(); // Refresh user list
+      _fetchUsers(); 
       _showSuccessDialog('User removed successfully!');
     } catch (e) {
       _showErrorDialog('Error removing user: $e');
@@ -68,7 +65,6 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
     }
   }
 
-  /// Show error dialog
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -87,7 +83,6 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
     );
   }
 
-  /// Show success dialog
   void _showSuccessDialog(String message) {
     showDialog(
       context: context,
@@ -128,6 +123,15 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
                   child: ListTile(
                     title: Text(user['name'] ?? 'No Name'),
                     subtitle: Text(user['email'] ?? 'No Email'),
+                    onTap: () {
+                      // Navigate to user details page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserDetailsPage(user: user),
+                        ),
+                      );
+                    },
                     trailing: IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () => _removeUser(user['uid']),
@@ -136,6 +140,35 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
                 );
               },
             ),
+    );
+  }
+}
+
+
+class UserDetailsPage extends StatelessWidget {
+  final Map<String, dynamic> user;
+
+  UserDetailsPage({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('User Details')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            user['aadhaarUrl'] != null
+                ? Image.network(user['aadhaarUrl'], height: 200)
+                : SizedBox.shrink(),
+            SizedBox(height: 20),
+            Text('Name: ${user['name'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+            Text('Email: ${user['email'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+            Text('Mobile: ${user['mobile'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+            Text('City: ${user['city'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+          ],
+        ),
+      ),
     );
   }
 }

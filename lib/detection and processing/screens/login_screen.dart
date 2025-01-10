@@ -30,18 +30,17 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        // Authenticate user
-        bool loginSuccess = await UserAuthService().userLogin(
+        // Authenticate user using the login method from UserAuthService
+        UserCredential? userCredential = await UserAuthService().login(
           email: emailController.text.trim(),
           password: passwordController.text,
-          context: context,
         );
 
-        if (loginSuccess) {
+        if (userCredential != null) {
           // Get authenticated user's email
           String userEmail = FirebaseAuth.instance.currentUser?.email ?? '';
 
-          // Check Firestore collections
+          // Check if user exists in Admin or Users collection
           bool isAdmin = await checkAdminCollection(userEmail);
           bool isUser = await checkUserCollection(userEmail);
 

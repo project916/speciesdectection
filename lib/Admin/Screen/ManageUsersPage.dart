@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'AddUser.dart';
+import 'package:speciesdectection/Admin/Screen/AddUser.dart';
 import 'RemoveUser.dart';
 
 class ManageUsersPage extends StatefulWidget {
@@ -77,7 +77,7 @@ class _ManageUsersPageState extends State<ManageUsersPage> {
               Expanded(
                 child: AnimatedSwitcher(
                   duration: Duration(milliseconds: 300),
-                  child: _isAddingUser ? AddUserPage() : RemoveUserPage(),
+                  child: _isAddingUser ? AdminApprovalPage() : RemoveUserPage(),
                 ),
               ),
             ],

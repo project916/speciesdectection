@@ -1,6 +1,13 @@
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:speciesdectection/detection%20and%20processing/Service/UserAuthService.dart';
-import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';  // Import LoginPage
+import 'package:file_picker/file_picker.dart'; // For picking files
+import 'dart:io'; // For file handling
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -15,39 +22,154 @@ class _SignupState extends State<Signup> {
   final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobilenumberController = TextEditingController();
+
   bool showPass = true;
   bool showConfirmPass = true;
-  bool isLoading = false; // Flag for loading state
+  bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
 
-  void Signuphandler()async{
-      {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              setState(() {
-                                isLoading = true; // Start loading
-                              });
+  // Dropdown-related variables
+  final List<String> cities = ['Kannur', 'Iritty', 'Aralam', 'Mattannur'];
+  String? selectedCity;
 
-                              // Call registration service
-                              await UserAuthService().UserRegister(
-                                name: nameController.text,
-                                email: emailController.text,
-                                mobile: mobilenumberController.text,
-                                password: passwordController.text,
-                                context: context,
-                              );
+  // Aadhaar file-related variables
+  File? aadhaarFile;
 
-                              setState(() {
-                                isLoading = false; // Stop loading
-                              });
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Please fix errors in the form'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            }
-                          };
+  Future<void> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image, // Only image files
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        aadhaarFile = File(result.files.single.path!);
+      });
+    }
+  }
+
+ Future<String?> uploadToCloudinary(File file) async {
+  const String cloudName = 'duois5umz'; // Replace with your Cloudinary cloud name
+  const String apiKey = '275969583223717'; // Replace with your Cloudinary API key
+  const String apiSecret = 'YA29IGtIUlFXnid8SunyDNa81-U'; // Replace with your Cloudinary API secret
+
+  // Timestamp for generating the signature
+  final int timestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+  // Generate the signature using the API secret
+  final String signature = sha1
+      .convert(utf8.encode(
+          'timestamp=$timestamp$apiSecret')) // The string to sign
+      .toString();
+
+  final uri = Uri.parse(
+      'https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+  final request = http.MultipartRequest('POST', uri);
+
+  // Add required fields
+  request.fields['api_key'] = apiKey;
+  request.fields['timestamp'] = timestamp.toString();
+  request.fields['signature'] = signature;
+
+  // Add file
+  request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+  // Send request
+  final response = await request.send();
+
+  if (response.statusCode == 200) {
+    final responseData = json.decode(await response.stream.bytesToString());
+    return responseData['secure_url'];
+  } else {
+    return null;
+  }
+}
+
+  void signupHandler() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (selectedCity == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select a city'),
+          ),
+        );
+        return;
+      }
+      if (aadhaarFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please upload an Aadhaar photo'),
+          ),
+        );
+        return;
+      }
+
+      setState(() {
+        isLoading = true;
+      });
+
+      try {
+        // Upload image to Cloudinary
+        String? imageUrl = await uploadToCloudinary(aadhaarFile!);
+        if (imageUrl == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to upload Aadhaar image'),
+            ),
+          );
+          setState(() {
+            isLoading = false;
+          });
+          return;
+        }
+
+        // Register user with Firebase Authentication
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+
+        // Store user details in Firestore with pending status
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(userCredential.user?.uid)
+            .set({
+          'name': nameController.text,
+          'email': emailController.text,
+          'mobile': mobilenumberController.text,
+          'city': selectedCity,
+          'aadhaarUrl': imageUrl,
+          'status': 'pending', // Add pending status
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Signup successful, waiting for admin approval'),
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+          ),
+        );
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fix errors in the form'),
+        ),
+      );
+    }
   }
 
   @override
@@ -76,7 +198,7 @@ class _SignupState extends State<Signup> {
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -119,7 +241,7 @@ class _SignupState extends State<Signup> {
                     height: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      image: DecorationImage(
+                      image: const DecorationImage(
                         image: AssetImage('asset/images/logo.jpeg'),
                         fit: BoxFit.cover,
                       ),
@@ -173,6 +295,68 @@ class _SignupState extends State<Signup> {
                       return null;
                     },
                   ),
+
+                  // City Dropdown
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        labelText: 'Select City',
+                        prefixIcon: Icon(Icons.location_city),
+                      ),
+                      value: selectedCity,
+                      items: cities
+                          .map((city) => DropdownMenuItem<String>(
+                                value: city,
+                                child: Text(city),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCity = value;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? 'Please select a city' : null,
+                    ),
+                  ),
+
+                  // Aadhaar Upload Button
+                  aadhaarFile == null
+                      ? OutlinedButton.icon(
+                          onPressed: pickFile,
+                          icon: const Icon(Icons.upload),
+                          label: const Text("Upload Aadhaar"),
+                        )
+                      : Column(
+                          children: [
+                            Image.file(
+                              aadhaarFile!,
+                              height: 150,
+                              width: 150,
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: pickFile,
+                              icon: const Icon(Icons.refresh),
+                              label: const Text("Change Aadhaar"),
+                            ),
+                          ],
+                        ),
+
+                  const SizedBox(height: 20),
 
                   // Password TextField
                   customTextField(
@@ -231,31 +415,32 @@ class _SignupState extends State<Signup> {
 
                   // Sign Up Button or Loading Indicator
                   isLoading
-                      ? CircularProgressIndicator() // Show loading spinner
+                      ? const CircularProgressIndicator()
                       : OutlinedButton(
-                          onPressed: Signuphandler,
-                          child: Text('Sign Up'),
+                          onPressed: signupHandler,
+                          child: const Text('Sign Up'),
                         ),
+
+                  const SizedBox(height: 10),
 
                   // Login Option
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Already have an account? "),
+                      const Text("Already have an account? "),
                       GestureDetector(
                         onTap: () {
-                          // Navigate to the Login page
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => LoginPage(),
+                              builder: (context) => const LoginPage(),
                             ),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           "Login",
                           style: TextStyle(
-                            color: const Color.fromARGB(204, 24, 5, 78),
+                            color: Color.fromARGB(204, 24, 5, 78),
                             fontWeight: FontWeight.bold,
                           ),
                         ),
