@@ -61,12 +61,6 @@ class _LoginPageState extends State<LoginPage> {
                 builder: (context) => Homepage(),
               ),
             );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("User not found in any collection."),
-              ),
-            );
           }
         }
       } catch (e) {
@@ -104,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Check if user exists in Users collection
+  // Check if user exists in Users collection and is approved
   Future<bool> checkUserCollection(String email) async {
     try {
       final userSnapshot = await FirebaseFirestore.instance
@@ -112,7 +106,31 @@ class _LoginPageState extends State<LoginPage> {
           .where('email', isEqualTo: email)
           .get();
 
-      return userSnapshot.docs.isNotEmpty;
+      if (userSnapshot.docs.isNotEmpty) {
+        final userData = userSnapshot.docs.first.data();
+        final String status =
+            userData['status'] ?? 'pending'; // Default to 'pending'
+
+        if (status == 'approved') {
+          return true; // User is approved
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                status == 'pending'
+                    ? 'Your account is pending approval. Please wait for admin approval.'
+                    : 'Your account has been rejected. Contact support for assistance.',
+              ),
+            ),
+          );
+          return false; // User is not approved
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('')),
+        );
+        return false;
+      }
     } catch (e) {
       debugPrint("Error checking Users collection: $e");
       return false;
