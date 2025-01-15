@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:speciesdectection/detection%20and%20processing/screens/Aichat.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Emergency_Contact_page.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Feedbac_page.dart';
+
 import 'package:speciesdectection/detection%20and%20processing/screens/Noticationpage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Safety_Tips_Page.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Upload_Video_Page.dart';
@@ -107,24 +109,37 @@ class Homepage extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  leading: Icon(Icons.feedback),
+                  title: Text('Feedback'),
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FeedbackPage()));
+                  },
+                ),
+                ListTile(
                   leading: Icon(Icons.logout),
                   title: Text('Logout'),
                   onTap: () async {
                     try {
-await FirebaseFirestore.instance.collection('playerId') .doc(FirebaseAuth.instance.currentUser?.uid).delete();
- await FirebaseAuth.instance.signOut();
-   ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Logged out')),
-                    );
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
-                      (route) => false,
-                    );
- print("User logged out successfully.");
-} catch (e) {
- print("Error logging out: $e");
- }
+                      await FirebaseFirestore.instance
+                          .collection('playerId')
+                          .doc(FirebaseAuth.instance.currentUser?.uid)
+                          .delete();
+                      await FirebaseAuth.instance.signOut();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Logged out')),
+                      );
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        (route) => false,
+                      );
+                      print("User logged out successfully.");
+                    } catch (e) {
+                      print("Error logging out: $e");
+                    }
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Logged out')),
                     );
@@ -203,12 +218,12 @@ await FirebaseFirestore.instance.collection('playerId') .doc(FirebaseAuth.instan
                     case 3:
                       return buildFeatureBox(
                         context,
-                        'Feedback',
-                        Icons.feedback,
+                        'Ai Chat',
+                        Icons.chat,
                         () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => FeedbackPage())),
+                                builder: (context) => AiChatPage())),
                       );
                     default:
                       return SizedBox();
