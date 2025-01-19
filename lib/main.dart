@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speciesdectection/Admin/Screen/Admin_home.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/Homepage.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
@@ -39,7 +38,17 @@ Future<Widget> determineHomeScreen() async {
       if (adminSnapshot.docs.isNotEmpty) {
         return AdminHome(); // Admin home screen
       } else {
-        return Homepage(); // User home screen
+        final userDoc = await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user as String?)
+            .get();
+        String statusData = userDoc.data()?['status'] ?? 'pending';
+        bool status = statusData == 'approved' ? true : false;
+        if (status) {
+          return Homepage(); // User home screen
+        } else {
+          return LoginPage();
+        }
       }
     } catch (e) {
       print('Error checking admin role: $e');

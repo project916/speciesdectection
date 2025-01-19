@@ -21,6 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   bool showPassword = true;
   bool isLoading = false; // Flag for loading state
   final _formKey = GlobalKey<FormState>();
+  String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
   void loginHandler() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -54,13 +55,27 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else if (isUser) {
-            prefs.setString('user_role', 'user'); // Navigate to User Homepage
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Homepage(),
-              ),
-            );
+            prefs.setString('user_role', 'user');
+            final userDoc = await FirebaseFirestore.instance
+                .collection('Users')
+                .doc(currentUserId)
+                .get();
+            String statusData = userDoc.data()?['status'] ?? 'pending';
+            bool status = statusData == 'approved' ? true : false;
+            if (status) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Homepage(),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("waiting for admin approval"),
+                ),
+              );
+            }
           }
         }
       } catch (e) {
