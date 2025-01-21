@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:speciesdectection/Admin/AdminChat.dart';
-import 'package:speciesdectection/Admin/Screen/Adminprivileage.dart';
 import 'package:speciesdectection/Admin/Screen/ManageUsersPage.dart';
 import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart';
 import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart';
@@ -8,10 +7,7 @@ import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:speciesdectection/Admin/Screen/uploadhistory.dart';
 import 'package:speciesdectection/detection%20and%20processing/screens/login_screen.dart';
-import 'package:speciesdectection/Admin/AdminChat.dart';
-
-
-import 'api.dart'; // Import Admin Chat Page
+import 'api.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
@@ -25,58 +21,49 @@ class _AdminHomeState extends State<AdminHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Dashboard'),
-        backgroundColor: const Color.fromARGB(255, 53, 185, 168),
-        elevation: 0,
+        title: const Text(
+          'Admin Dashboard',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+        backgroundColor: const Color.fromARGB(255, 255, 254, 171),
+        elevation: 5,
         actions: [
-          // Logout Icon
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
-          ),
-          // Chat Icon
-          IconButton(
-            icon: Icon(Icons.chat),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AdminChatPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
               );
             },
           ),
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade100, Colors.pink.shade50],
+            colors: [Color(0xFFF3F7FF), Color(0xFFFFE3E8)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16.0,
-              mainAxisSpacing: 16.0,
-            ),
-            itemCount: 5, // Updated to 5 for the new option
-            itemBuilder: (context, index) {
-              return AdminPrivilegeCard(
-                title: _getPrivilegeTitle(index),
-                icon: _getPrivilegeIcon(index),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: 6, // Number of features
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: GestureDetector(
                 onTap: () => _onPrivilegeTapped(index, context),
-              );
-            },
-          ),
+                child: AdminFeatureCard(
+                  title: _getPrivilegeTitle(index),
+                  icon: _getPrivilegeIcon(index),
+                ),
+              ),
+            );
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -84,8 +71,9 @@ class _AdminHomeState extends State<AdminHome> {
           context,
           MaterialPageRoute(builder: (context) => const ApiScreen()),
         ),
-        child: Icon(Icons.settings),
-        tooltip: 'Go to Admin Page',
+        backgroundColor: const Color(0xFF35B9A8),
+        child: const Icon(Icons.settings),
+        tooltip: 'Admin Settings',
       ),
     );
   }
@@ -101,26 +89,30 @@ class _AdminHomeState extends State<AdminHome> {
       case 3:
         return 'Manage Emergency Contact';
       case 4:
-        return 'Upload History'; // New option
+        return 'Upload History';
+      case 5:
+        return 'Admin Chat';
       default:
         return 'Privilege $index';
     }
   }
 
-  Icon _getPrivilegeIcon(int index) {
+  IconData _getPrivilegeIcon(int index) {
     switch (index) {
       case 0:
-        return Icon(Icons.group);
+        return Icons.group;
       case 1:
-        return Icon(Icons.feedback);
+        return Icons.feedback;
       case 2:
-        return Icon(Icons.notifications);
+        return Icons.notifications;
       case 3:
-        return Icon(Icons.phone);
+        return Icons.phone;
       case 4:
-        return Icon(Icons.history); // Icon for Upload History
+        return Icons.history;
+      case 5:
+        return Icons.chat;
       default:
-        return Icon(Icons.lock);
+        return Icons.lock;
     }
   }
 
@@ -153,7 +145,13 @@ class _AdminHomeState extends State<AdminHome> {
       case 4:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => UploadHistoryPage()), // Navigate to Upload History
+          MaterialPageRoute(builder: (context) => UploadHistoryPage()),
+        );
+        break;
+      case 5:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AdminChatPage()),
         );
         break;
       default:
@@ -162,49 +160,55 @@ class _AdminHomeState extends State<AdminHome> {
   }
 }
 
-class AdminPrivilegeCard extends StatelessWidget {
+class AdminFeatureCard extends StatelessWidget {
   final String title;
-  final Icon icon;
-  final VoidCallback onTap;
+  final IconData icon;
 
-  AdminPrivilegeCard(
-      {required this.title, required this.icon, required this.onTap});
+  const AdminFeatureCard({
+    required this.title,
+    required this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      shadowColor: Colors.black12,
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.lightBlue.shade100, Colors.pink.shade50],
+            colors: [Color(0xFFB8D3FF), Color(0xFFD7A8F5)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-            ),
-          ],
+          borderRadius: BorderRadius.all(Radius.circular(15)),
         ),
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
-            icon,
-            SizedBox(height: 10),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.white,
+              child: Icon(
+                icon,
+                size: 30,
+                color: Color(0xFF5A5A5A),
               ),
             ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios,
+                color: Colors.black54, size: 20),
           ],
         ),
       ),
