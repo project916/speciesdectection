@@ -56,26 +56,13 @@ class _LoginPageState extends State<LoginPage> {
             );
           } else if (isUser) {
             prefs.setString('user_role', 'user');
-            final userDoc = await FirebaseFirestore.instance
-                .collection('Users')
-                .doc(currentUserId)
-                .get();
-            String statusData = userDoc.data()?['status'] ?? 'pending';
-            bool status = statusData == 'approved' ? true : false;
-            if (status) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Homepage(),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("waiting for admin approval"),
-                ),
-              );
-            }
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Homepage(),
+              ),
+            );
           }
         }
       } catch (e) {
