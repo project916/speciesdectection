@@ -24,12 +24,12 @@ Future<void> main() async {
   runApp(MyApp(home: homeScreen));
 }
 
-// Function to determine the home screen dynamically
 Future<Widget> determineHomeScreen() async {
   final user = FirebaseAuth.instance.currentUser;
 
   if (user != null) {
     try {
+      // Check if the user is an admin
       final adminSnapshot = await FirebaseFirestore.instance
           .collection('Admin')
           .where('email', isEqualTo: user.email)
@@ -37,21 +37,24 @@ Future<Widget> determineHomeScreen() async {
 
       if (adminSnapshot.docs.isNotEmpty) {
         return AdminHome(); // Admin home screen
+      }
+
+      // Check the user's status in the 'Users' collection
+      final userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid) // Use user.uid for the document ID
+          .get();
+
+      String statusData = userDoc.data()?['status'] ?? 'pending';
+      bool status = statusData == 'approved';
+
+      if (status) {
+        return Homepage(); // User home screen
       } else {
-        final userDoc = await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(user as String?)
-            .get();
-        String statusData = userDoc.data()?['status'] ?? 'pending';
-        bool status = statusData == 'approved' ? true : false;
-        if (status) {
-          return Homepage(); // User home screen
-        } else {
-          return LoginPage();
-        }
+        return LoginPage(); // If status is not approved, show login
       }
     } catch (e) {
-      print('Error checking admin role: $e');
+      print('Error checking user role or status: $e');
       return LoginPage(); // Fallback to login on error
     }
   } else {
