@@ -185,15 +185,20 @@ class _VideoDetailsPageState extends State<VideoDetailsPage> {
                           aspectRatio: _controller.value.aspectRatio,
                           child: VideoPlayer(_controller),
                         )
-                      : 
+                      : Center(child: CircularProgressIndicator()),
                   SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      
                       ElevatedButton(
-                        onPressed: () => _launchURL(widget.videoDetails['videoUrl']),
-                        child: Text('Open in Browser'),
+                        onPressed: () {
+                          if (_isVideoInitialized) {
+                            setState(() {
+                              _controller.value.isPlaying ? _controller.pause() : _controller.play();
+                            });
+                          }
+                        },
+                        child: Text(_controller.value.isPlaying ? 'Pause' : 'Play'),
                       ),
                     ],
                   ),
