@@ -13,7 +13,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Chat'),
+        title: Text('User Chat'),
         backgroundColor: Colors.blueAccent,
       ),
       body: StreamBuilder(

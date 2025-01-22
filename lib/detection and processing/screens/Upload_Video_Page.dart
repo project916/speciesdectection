@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,108 +41,140 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   // Function to pick a video file
   Future<void> _pickVideo(BuildContext context) async {
     try {
-      // Pick a video file
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.video,
       );
 
       if (result != null && result.files.single.path != null) {
-        // Access the file path
         String filePath = result.files.single.path!;
-        await _uploadVideo();
         setState(() {
-          _selectedVideoPath = filePath; // Update the state with the selected file path
+          _selectedVideoPath = filePath;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Video selected: $filePath')),
         );
       } else {
-        // No file was selected
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('No video selected.')),
         );
       }
     } catch (e) {
-      // Handle errors gracefully
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking video: $e')),
       );
     }
   }
 
-  // Function to upload the video and save data to Firestore
-  Future<void> _uploadVideo() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.video,
-    );
-
-    if (result != null) {
-      File file = File(result.files.single.path!);
-
-      setState(() {
-        _isUploading = true;
-      });
-
-      // Show loading dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return Center(child: CircularProgressIndicator());
-        },
-      );
-
+  // Function to upload the video to Cloudinary
+  Future<String?> _uploadVideoToCloudinary(String filePath) async {
+    try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$apiValue/upload'), // Replace with your Flask server's URL
+        Uri.parse('https://api.cloudinary.com/v1_1/duois5umz/video/upload'),
       );
 
-      request.files.add(await http.MultipartFile.fromPath('video', file.path));
+      request.fields['upload_preset'] = 'video123'; // Replace with your Cloudinary upload preset
+      request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
-      try {
-        var response = await request.send();
+      var response = await request.send();
 
-        if (response.statusCode == 200) {
-          var responseData = await response.stream.bytesToString();
-          var parsedData = jsonDecode(responseData);
-          _result = parsedData['result'];
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var parsedData = jsonDecode(responseData);
+        print("Cloudinary Response: $parsedData");
 
-          if (_result == 'notfound') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('No Dangerous Animals')),
-            );
-          } else {
-            await sendNotificationToDevice('Alert ', _result);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(_result)),
-            );
-          }
-
-          // Save video details to Firestore
-          await saveVideoDetailsToFirestore(_result);
-        } else {
-          setState(() {
-            _result = "Error uploading video.";
-          });
-        }
-      } catch (e) {
-        setState(() {
-          _result = "Error uploading video: $e";
-        });
-      } finally {
-        setState(() {
-          _isUploading = false;
-        });
-        Navigator.of(context).pop();
+        // Extract the video URL
+        return parsedData['secure_url']; // Ensure this key matches Cloudinary's response structure
+      } else {
+        print("Error uploading to Cloudinary: ${response.statusCode}");
+        return null;
       }
-    } else {
-      setState(() {
-        _result = "No video selected.";
-      });
+    } catch (e) {
+      print("Error uploading to Cloudinary: $e");
+      return null;
     }
   }
 
-  // Function to send notification to users in the same city
+  // Function to upload the video and save data to Firestore
+  Future<void> _uploadVideo() async {
+    if (_selectedVideoPath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No video selected.')),
+      );
+      return;
+    }
+
+    File file = File(_selectedVideoPath!);
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    String? videoUrl = await _uploadVideoToCloudinary(_selectedVideoPath!);
+
+    if (videoUrl == null) {
+      setState(() {
+        _result = "Error uploading video to Cloudinary.";
+      });
+      setState(() {
+        _isUploading = false;
+      });
+      Navigator.of(context).pop();
+      return;
+    }
+
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$apiValue/upload'),
+    );
+
+    request.files.add(await http.MultipartFile.fromPath('video', file.path));
+
+    try {
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var parsedData = jsonDecode(responseData);
+        _result = parsedData['result'];
+
+        if (_result == 'notfound') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No Dangerous Animals')),
+          );
+        } else {
+          await sendNotificationToDevice('Alert', _result);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(_result)),
+          );
+        }
+
+        await saveVideoDetailsToFirestore(_result, videoUrl); // Pass video URL here
+      } else {
+        setState(() {
+          _result = "Error uploading video.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _result = "Error uploading video: $e";
+      });
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+      Navigator.of(context).pop();
+    }
+  }
+
   Future<void> sendNotificationToDevice(String title, String body) async {
     try {
       String? uid = FirebaseAuth.instance.currentUser?.uid;
@@ -162,13 +193,10 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
       print("User's City: $userCity");
 
-      // Fetch playerIds from the playerId collection
       var snapshot = await FirebaseFirestore.instance
           .collection('playerId')
-          .where('city', isEqualTo: userCity) // Filter by city
+          .where('city', isEqualTo: userCity)
           .get();
-
-      print("Query returned ${snapshot.docs.length} users in the same city.");
 
       List<String> playerIds = [];
       for (var doc in snapshot.docs) {
@@ -182,10 +210,9 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         return;
       }
 
-      // Send notification
       var url = Uri.parse('https://api.onesignal.com/notifications');
       var notificationData = {
-        "app_id": '892abe75-6f3f-4773-b748-90cf5aaccf2d', // Replace with your OneSignal app ID
+        "app_id": '892abe75-6f3f-4773-b748-90cf5aaccf2d',
         "headings": {"en": title},
         "contents": {"en": body},
         "include_player_ids": playerIds,
@@ -193,7 +220,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
 
       var headers = {
         "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "os_v2_app_revl45lph5dxhn2isdhvvlgpfw5qioeeimuua5eetpb66zztsz7vk3qn2l5zcusid3tapiqnk4cheqnjugqbin4e2z43e6jhtihfhli", // Replace with your OneSignal API Key
+        "Authorization": "os_v2_app_revl45lph5dxhn2isdhvvlgpfw5qioeeimuua5eetpb66zztsz7vk3qn2l5zcusid3tapiqnk4cheqnjugqbin4e2z43e6jhtihfhli",
       };
 
       var response = await http.post(url, headers: headers, body: jsonEncode(notificationData));
@@ -203,15 +230,12 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         print("Notification Sent Successfully!");
       } else {
         print("Failed to send notification: ${response.statusCode}");
-        print("Response Status: ${response.statusCode}");
-        print("Response Body: ${response.body}");
       }
     } catch (e) {
       print("Error sending notification: $e");
     }
   }
 
-  // Function to get the current user's city from Firestore
   Future<String?> getCityFromFirestore(String? uid) async {
     if (uid == null) {
       return null;
@@ -233,8 +257,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
     }
   }
 
-  // Function to save video details to Firestore
-  Future<void> saveVideoDetailsToFirestore(String result) async {
+  Future<void> saveVideoDetailsToFirestore(String result, String videoUrl) async {
     try {
       String? uid = FirebaseAuth.instance.currentUser?.uid;
       if (uid == null) {
@@ -242,14 +265,13 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
         return;
       }
 
-      // Get the current time
       String time = DateTime.now().toIso8601String();
 
-      // Save video details to Firestore
       await FirebaseFirestore.instance.collection('videos').add({
         'userId': uid,
         'time': time,
         'result': result,
+        'videoUrl': videoUrl, // Save the video URL
       });
 
       print("Video details saved successfully.");
@@ -282,22 +304,36 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  await _uploadVideo();
+                  await _pickVideo(context);
                 },
                 child: Text('Select Video'),
               ),
               SizedBox(height: 20),
-              if (_selectedVideoPath != null)
+              if (_selectedVideoPath != null) ...[
                 Text(
                   'Video Selected: $_selectedVideoPath',
                   style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
-                )
-              else
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    await _uploadVideo();
+                  },
+                  child: Text('Process Video'),
+                ),
+              ] else
                 Text(
                   'No video selected yet.',
                   style: TextStyle(fontSize: 16),
                   textAlign: TextAlign.center,
+                ),
+              
+              if (_isUploading)
+                SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(),
                 ),
             ],
           ),

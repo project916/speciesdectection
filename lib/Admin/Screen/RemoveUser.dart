@@ -54,7 +54,7 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
 
     try {
       await _firestore.collection('Users').doc(uid).delete();
-      _fetchUsers(); 
+      _fetchUsers();
       _showSuccessDialog('User removed successfully!');
     } catch (e) {
       _showErrorDialog('Error removing user: $e');
@@ -144,7 +144,6 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
   }
 }
 
-
 class UserDetailsPage extends StatelessWidget {
   final Map<String, dynamic> user;
 
@@ -153,19 +152,49 @@ class UserDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('User Details')),
+      appBar: AppBar(
+        title: Text('User Details'),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            user['aadhaarUrl'] != null
-                ? Image.network(user['aadhaarUrl'], height: 200)
-                : SizedBox.shrink(),
+            if (user['aadhaarUrl'] != null && user['aadhaarUrl'].isNotEmpty)
+              Column(
+                children: [
+                  Text(
+                    'Aadhaar Image',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Image.network(
+                    user['aadhaarUrl'],
+                    height: 200,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Icon(Icons.broken_image, size: 100, color: Colors.red),
+                  ),
+                ],
+              ),
             SizedBox(height: 20),
-            Text('Name: ${user['name'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
-            Text('Email: ${user['email'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
-            Text('Mobile: ${user['mobile'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
-            Text('City: ${user['city'] ?? 'N/A'}', style: TextStyle(fontSize: 18)),
+            Text(
+              'User Information',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text('Name: ${user['name'] ?? 'N/A'}', style: TextStyle(fontSize: 16)),
+            Text('Email: ${user['email'] ?? 'N/A'}', style: TextStyle(fontSize: 16)),
+            Text('Mobile: ${user['mobile'] ?? 'N/A'}', style: TextStyle(fontSize: 16)),
+            Text('City: ${user['city'] ?? 'N/A'}', style: TextStyle(fontSize: 16)),
           ],
         ),
       ),

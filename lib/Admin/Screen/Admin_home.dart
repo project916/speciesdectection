@@ -91,7 +91,7 @@ class _AdminHomeState extends State<AdminHome> {
       case 4:
         return 'Upload History';
       case 5:
-        return 'Admin Chat';
+        return 'User Chat';
       default:
         return 'Privilege $index';
     }
