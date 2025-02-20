@@ -8,17 +8,14 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  // Create controllers for the text fields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mobileController = TextEditingController();
-
-  // Firebase Auth and Firestore instances
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Store the original values to reset fields
   String originalName = '';
   String originalMobile = '';
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -28,17 +25,14 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   @override
   void dispose() {
-    // Clean up the controllers when the widget is disposed
     _nameController.dispose();
     _mobileController.dispose();
     super.dispose();
   }
 
-  // Fetch user data from Firebase
   Future<void> _loadUserData() async {
     User? user = _auth.currentUser;
     if (user != null) {
-      // Get the user document from the 'Users' collection
       DocumentSnapshot snapshot =
           await _firestore.collection('Users').doc(user.uid).get();
 
@@ -47,7 +41,6 @@ class EditProfilePageState extends State<EditProfilePage> {
         setState(() {
           originalName = data['name'] ?? '';
           originalMobile = data['mobile'] ?? '';
-
           _nameController.text = originalName;
           _mobileController.text = originalMobile;
         });
@@ -55,34 +48,53 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  // Update user profile data
   Future<void> _updateUserProfile() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      try {
-        // Update the user data in Firestore
-        await _firestore.collection('Users').doc(user.uid).update({
-          'name': _nameController.text,
-          'mobile': _mobileController.text,
-        });
+    if (_formKey.currentState!.validate()) {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        try {
+          await _firestore.collection('Users').doc(user.uid).update({
+            'name': _nameController.text.trim(),
+            'mobile': _mobileController.text.trim(),
+          });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated!')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating profile: $e')),
-        );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Profile updated successfully!')),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error updating profile: $e')),
+          );
+        }
       }
     }
   }
 
-  // Reset the fields to their original values
   void _resetFields() {
     setState(() {
       _nameController.text = originalName;
       _mobileController.text = originalMobile;
     });
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name cannot be empty';
+    } else if (value.trim().length < 3) {
+      return 'Name must be at least 3 characters long';
+    } else if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(value.trim())) {
+      return 'Name can only contain letters and spaces';
+    }
+    return null;
+  }
+
+  String? _validateMobile(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Mobile number cannot be empty';
+    } else if (!RegExp(r"^[0-9]{10}$").hasMatch(value.trim())) {
+      return 'Enter a valid 10-digit mobile number';
+    }
+    return null;
   }
 
   @override
@@ -93,7 +105,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: Colors.blueAccent,
       ),
       body: Container(
-        constraints: BoxConstraints.expand(), // Ensure the container takes up all available space
+        constraints: BoxConstraints.expand(),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -108,58 +120,62 @@ class EditProfilePageState extends State<EditProfilePage> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min, // To make sure content doesn't take up all the space
-                children: [
-                  // Default Profile Picture (No option for change)
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage('asset/images/profile_image.png'), // Default image
-                  ),
-                  SizedBox(height: 20),
-
-                  // User Name Field
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          AssetImage('asset/images/profile_image.png'),
                     ),
-                  ),
-                  SizedBox(height: 15),
+                    SizedBox(height: 20),
 
-                  // Mobile Number Field
-                  TextField(
-                    controller: _mobileController,
-                    decoration: InputDecoration(
-                      labelText: 'Mobile Number',
-                      border: OutlineInputBorder(),
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validateName,
                     ),
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(height: 15),
 
-                  // Save Changes Button
-                  ElevatedButton(
-                    onPressed: _updateUserProfile,
-                    child: Text('Save Changes'),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      textStyle: TextStyle(fontSize: 18),
+                    TextFormField(
+                      controller: _mobileController,
+                      decoration: InputDecoration(
+                        labelText: 'Mobile Number',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.phone,
+                      validator: _validateMobile,
                     ),
-                  ),
-                  SizedBox(height: 10),
+                    SizedBox(height: 20),
 
-                  // Reset Button
-                  ElevatedButton(
-                    onPressed: _resetFields,
-                    child: Text('Reset'),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      backgroundColor: Colors.grey,
-                      textStyle: TextStyle(fontSize: 18),
+                    ElevatedButton(
+                      onPressed: _updateUserProfile,
+                      child: Text('Save Changes'),
+                      style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        textStyle: TextStyle(fontSize: 18),
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: 10),
+
+                    ElevatedButton(
+                      onPressed: _resetFields,
+                      child: Text('Reset'),
+                      style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        backgroundColor: Colors.grey,
+                        textStyle: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

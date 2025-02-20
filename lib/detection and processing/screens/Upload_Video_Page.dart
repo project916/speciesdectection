@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 class UploadVideoPage extends StatefulWidget {
   @override
   _UploadVideoPageState createState() => _UploadVideoPageState();
@@ -178,6 +180,8 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
   Future<void> sendNotificationToDevice(String title, String body) async {
     try {
       String? uid = FirebaseAuth.instance.currentUser?.uid;
+      String formattedTime = DateFormat('HH:mm:ss yyyy-MM-dd').format(DateTime.now());
+
 
       if (uid == null) {
         print("User not authenticated.");
@@ -214,7 +218,7 @@ class _UploadVideoPageState extends State<UploadVideoPage> {
       var notificationData = {
         "app_id": '892abe75-6f3f-4773-b748-90cf5aaccf2d',
         "headings": {"en": title},
-        "contents": {"en": body},
+        "contents": {"en": "$body\nTime: $formattedTime"},
         "include_player_ids": playerIds,
       };
 

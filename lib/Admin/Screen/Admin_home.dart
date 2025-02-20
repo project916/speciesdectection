@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:speciesdectection/Admin/AdminChat.dart';
 import 'package:speciesdectection/Admin/Screen/ManageUsersPage.dart';
+import 'package:speciesdectection/Admin/Screen/Safetytips.dart';
 import 'package:speciesdectection/Admin/Screen/ViewFeedbackPage.dart';
 import 'package:speciesdectection/Admin/Screen/ManageEmergencyContactPage.dart';
 import 'package:speciesdectection/Admin/Screen/SendNotificationsPage.dart';
@@ -51,7 +53,7 @@ class _AdminHomeState extends State<AdminHome> {
         ),
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: 6, // Number of features
+          itemCount: 7, // Number of features
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
@@ -92,6 +94,8 @@ class _AdminHomeState extends State<AdminHome> {
         return 'Upload History';
       case 5:
         return 'User Chat';
+      case 6:
+        return 'Manage Safety Tips';
       default:
         return 'Privilege $index';
     }
@@ -111,6 +115,8 @@ class _AdminHomeState extends State<AdminHome> {
         return Icons.history;
       case 5:
         return Icons.chat;
+      case 6:
+        return Icons.safety_check;
       default:
         return Icons.lock;
     }
@@ -154,11 +160,19 @@ class _AdminHomeState extends State<AdminHome> {
           MaterialPageRoute(builder: (context) => AdminChatPage()),
         );
         break;
+      case 6:
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) =>AdminSafetyTipsPage()), // Use the correct class name
+  );
+  break;
+
       default:
         print('Invalid privilege');
     }
   }
 }
+
 
 class AdminFeatureCard extends StatelessWidget {
   final String title;
