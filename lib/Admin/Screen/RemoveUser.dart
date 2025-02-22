@@ -24,7 +24,10 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
     });
 
     try {
-      QuerySnapshot snapshot = await _firestore.collection('Users').get();
+      QuerySnapshot snapshot = await _firestore
+          .collection('Users')
+          .where('status', isEqualTo: 'approved') // Only fetch approved users
+          .get();
       setState(() {
         _users = snapshot.docs.map((doc) {
           var data = doc.data() as Map<String, dynamic>;
@@ -53,11 +56,13 @@ class _RemoveUserPageState extends State<RemoveUserPage> {
     });
 
     try {
-      await _firestore.collection('Users').doc(uid).delete();
-      _fetchUsers();
-      _showSuccessDialog('User removed successfully!');
+      await _firestore.collection('Users').doc(uid).update({
+        'status': 'Removed',
+      });
+      _fetchUsers(); // Refresh user list
+      _showSuccessDialog('User marked as removed successfully!');
     } catch (e) {
-      _showErrorDialog('Error removing user: $e');
+      _showErrorDialog('Error updating user status: $e');
     } finally {
       setState(() {
         _isLoading = false;
